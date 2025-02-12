@@ -1,5 +1,5 @@
 class Plant {
-  constructor() {
+  constructor(boundary) {
     this.attractors = []
     this.attractor_grid = new Grid()
     this.segment_grid = new Grid()
@@ -10,6 +10,7 @@ class Plant {
     this.min_branch_length = 10
     this.kill_dist = k
     this.orientations = []
+    this.boundary = boundary
   }
 
   initialize(x, y){
@@ -30,9 +31,27 @@ class Plant {
   }
 
   add_attractor(x,y){
+    if(this.boundary.mode == "contain"){
+
+      if(!this.boundary.contains(createVector(x, y))){ return }
+
+    } else if (this.boundary.mode == "exclude"){
+      
+      if(this.boundary.contains(createVector(x, y))){ return }
+      
+    }
+
     let a = new Attractor(x, y)
     this.attractors.push(a)
     this.attractor_grid.add(a)
+  }
+
+  draw_boundary(){
+    if(this.boundary.type == "circle"){
+      circle(this.boundary.center.x, this.boundary.center.y, this.boundary.radius*2)
+    } else if (this.boundary.type == "rectangle"){
+      rect(this.boundary.x, this.boundary.y, this.boundary.w, this.boundary.h)
+    }
   }
 
   draw_attractors(){
@@ -155,6 +174,17 @@ class Plant {
 
       if(!a.active){
         this.attractors.splice(i, 1)
+
+        for(let plant of plants){
+          if(plant != this){
+            for(let other_attractor of plant.attractors){
+              if(other_attractor.position.x == a.position.x && other_attractor.position.y == a.position.y){
+                other_attractor.active = false
+              }
+            }
+          }
+        }
+
       } else {
         a.segments = []
       }

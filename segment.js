@@ -26,8 +26,6 @@ class Segment {
   }
   
   draw_branches(){
-    fill(0)
-    stroke(255)
     if(this.parent != null){
       let minThickness = 1;
       let thicknessVal = max(this.thickness, minThickness);
@@ -35,15 +33,13 @@ class Segment {
       let rad = map(thicknessVal, 1, 3, 0.1, 1);  
       let radius = 100 * rad ** 2
 
-      if (radius < this.length*2) { 
+      if (radius < this.length*BRANCH_CUTOFF) { 
         line(this.x, this.y, this.parent.x, this.parent.y);
       }
     }
   }
 
   draw_trunks(){
-    fill(0)
-    stroke(255)
     if(this.parent != null){
       let minThickness = 1;
       let thicknessVal = max(this.thickness, minThickness);
@@ -51,6 +47,7 @@ class Segment {
       let rad = map(thicknessVal, 1, 3, 0.1, 1);  
       let radius = 100 * rad ** 2
 
+      if (radius < this.length*BRANCH_CUTOFF) { return }
 
       let n_circles = 1
 

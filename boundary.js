@@ -3,7 +3,7 @@ function createBoundaries(){
     let attempts = 0;
   
     while(boundaries.length < numGroups && attempts < 20 * numGroups){
-      let center = createVector(random(width), random(height));
+      let center = createVector(random(W*0.2, W*0.8), random(H*0.2, H*0.8));
       let radius = random(60, 90);
       let valid = true;
       for (let other of boundaries) {
