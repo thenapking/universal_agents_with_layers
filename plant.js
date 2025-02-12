@@ -1,5 +1,5 @@
 class Plant {
-  constructor(boundary) {
+  constructor(boundary, kill_dist, max_angle) {
     this.attractors = []
     this.attractor_grid = new Grid()
     this.segment_grid = new Grid()
@@ -8,12 +8,13 @@ class Plant {
     this.trunks = []
     this.current = null
     this.min_branch_length = 10
-    this.kill_dist = k
+    this.kill_dist = kill_dist
+    this.max_angle = max_angle
     this.orientations = []
     this.boundary = boundary
   }
 
-  initialize(x, y){
+  initialize(x, y, r){
     let target = createVector(width/2, height/2)
     var dir = p5.Vector.sub(target, createVector(x, y))
     var root = new Segment(x, y, dir, r, null, this)
@@ -69,6 +70,15 @@ class Plant {
         s.draw_trunks()
       }
     }
+  }
+
+  draw_bezier(){
+    beginShape()
+    for (let i = this.segments.length-1; i > 0; i--){
+      let s = this.segments[i]
+      s.draw_bezier()
+    }
+    endShape()
   }
 
   create_trunk(){

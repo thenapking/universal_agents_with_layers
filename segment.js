@@ -24,6 +24,10 @@ class Segment {
     this.attractors = []
     this.count = 0
   }
+
+  draw_bezier(){
+    curveVertex(this.x, this.y)
+  }
   
   draw_branches(){
     if(this.parent != null){
@@ -67,8 +71,8 @@ class Segment {
   }
 
   next(){
-    let nx = constrain(this.direction.x, this.original_direction.x-max_a, this.original_direction.x + max_a)
-    let ny = constrain(this.direction.y, this.original_direction.y-max_a, this.original_direction.y + max_a)
+    let nx = constrain(this.direction.x, this.original_direction.x-this.plant.max_angle, this.original_direction.x + this.plant.max_angle)
+    let ny = constrain(this.direction.y, this.original_direction.y-this.plant.max_angle, this.original_direction.y + this.plant.max_angle)
     let next_direction  = createVector(nx, ny).normalize().mult(this.length)
     
     let next_position = p5.Vector.add(this.position, next_direction)

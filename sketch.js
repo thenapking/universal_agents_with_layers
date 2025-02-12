@@ -11,7 +11,7 @@ let STATE_SEED = 1;
 let STATE_GROW = 2;
 let STATE_DONE = 3;
 let current_state = STATE_INIT;
-let NUM_SEEDS = 1600
+let NUM_SEEDS = 600
 
 const CIRCLE_SPACING = 1.4;
 
@@ -35,6 +35,8 @@ function setup() {
   createEllipseGroups();
   createCircularGroups();
 
+  pixelDensity(2);
+
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
 }
@@ -43,6 +45,7 @@ function draw() {
   background(palette.bg);
   stroke(palette.pen);
   fill(palette.bg);
+  strokeWeight(1.5);
 
   for (let group of groups) {
     group.draw();
@@ -86,7 +89,15 @@ function updateState(){
 
 
 function createPlant(){
-  for(let i = 0; i < 4; i++){
+  // let kill_dist = 20
+  // let initial_radius = 5
+  // let max_angle = 0.01
+
+  let kill_dist = 10
+  let initial_radius = 15
+  let max_angle = 0.5
+
+  for(let i = 0; i < 1; i++){
     console.log(`Creating plant ${i}`)
     let y = i<2 ? 0 : height
     let x = i%2==0 ? width*0.2 : width*0.8
@@ -94,9 +105,9 @@ function createPlant(){
     let xc = i%2==0 ? 0 : width
     let yc = i<2 ? height*0.075 : height*0.925
     let boundary = new Boundary("circle", {center: createVector(xc, yc), radius: W*0.8, mode: "contain"})
-    plant = new Plant(boundary)
+    plant = new Plant(boundary, kill_dist, max_angle)
     
-    plant.initialize(x, y)
+    plant.initialize(x, y, initial_radius)
 
     for(let obj of circular_group.agents){
       plant.add_attractor(obj.pos.x, obj.pos.y, obj)
@@ -109,18 +120,19 @@ function createPlant(){
 function updatePlant(){
   for(let plant of plants){
     plant.grow()
-    // plant.draw_attractors()
+    plant.draw_attractors()
     // noFill()
     // plant.draw_boundary()
     fill(palette.bg)
     stroke(palette.pen)
-    plant.draw_segments(false)
+    // plant.draw_segments(false)
   }
 
   for(let plant of plants){
     fill(palette.bg)
     stroke(palette.pen)
-    // plant.draw_segments(true)
+    plant.draw_segments(true)
+    // plant.draw_bezier()
   }
 }
 
