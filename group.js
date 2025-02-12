@@ -20,4 +20,10 @@ class Group {
       }
       agent.applyForce(force);
     }
+
+    draw(){
+      for (let agent of this.agents){
+        agent.draw();
+      }
+    }
 }
