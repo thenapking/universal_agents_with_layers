@@ -11,7 +11,7 @@ let STATE_SEED = 1;
 let STATE_GROW = 2;
 let STATE_DONE = 3;
 let current_state = STATE_INIT;
-let NUM_SEEDS = 600
+let NUM_SEEDS = 1200
 
 const CIRCLE_SPACING = 1.4;
 
@@ -51,9 +51,12 @@ function draw() {
     group.draw();
   }
 
+  drawPlant()
+
   updateState();
 }
 
+let branch_time = 0
 function updateState(){
   switch(current_state){
     case STATE_INIT:
@@ -76,28 +79,25 @@ function updateState(){
 
       break;
     case STATE_GROW:
+      branch_time++
       updatePlant();
-
+      if(branch_time > 1000){
+        current_state = STATE_DONE
+      }
       break;
     case STATE_DONE:
-
+      console.log("Finished growing plant");
       noLoop();
       break;
   }
 }
 
-
-
 function createPlant(){
-  // let kill_dist = 20
-  // let initial_radius = 5
-  // let max_angle = 0.01
+  let kill_dist = 20
+  let initial_radius = 5
+  let max_angle = 0.01
 
-  let kill_dist = 10
-  let initial_radius = 15
-  let max_angle = 0.5
-
-  for(let i = 0; i < 1; i++){
+  for(let i = 0; i < 4; i++){
     console.log(`Creating plant ${i}`)
     let y = i<2 ? 0 : height
     let x = i%2==0 ? width*0.2 : width*0.8
@@ -120,19 +120,14 @@ function createPlant(){
 function updatePlant(){
   for(let plant of plants){
     plant.grow()
-    plant.draw_attractors()
-    // noFill()
-    // plant.draw_boundary()
-    fill(palette.bg)
-    stroke(palette.pen)
-    // plant.draw_segments(false)
   }
+}
 
+function drawPlant(){
   for(let plant of plants){
     fill(palette.bg)
     stroke(palette.pen)
-    plant.draw_segments(true)
-    // plant.draw_bezier()
+    plant.draw_segments(false)
   }
 }
 
