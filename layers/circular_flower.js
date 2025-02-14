@@ -1,6 +1,3 @@
-// To make a flower from the slime group
-// r is inner radius
-// boundary is outer radius
 // n is number of fronds
 // separation factor is the frond straightness
 // separation distance is also a factor
@@ -15,7 +12,7 @@ class CircularFlower extends Layer {
       this.center = center;
       this.inner_radius = inner_radius;
       this.outer_radius = outer_radius;
-      this.num_fronds = num_fronds;
+      this.num_fronds = num_fronds; // not working
       this.straightness = straightness; // Separation factor
       this.separation_distance = separation_distance;
       this.max_time = max_time;
@@ -33,7 +30,7 @@ class CircularFlower extends Layer {
     }
     
     new_group(boundary){
-      return new SensorGroup(48, boundary.center, boundary.radius, [boundary], 
+      return new SensorGroup(this.num_fronds, boundary.center, boundary.radius, [boundary], 
         this.attractors, this.repellers, this.sensor_angle, this.rotation_angle, 
         this.sensor_dist, this.kill_dist, this.speed, this.poop_interval, this.inner_radius
       )

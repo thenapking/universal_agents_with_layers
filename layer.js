@@ -51,14 +51,14 @@ class Layer {
   }
 
   update(){
-    // let active = 0
+    let active = 0
     for (let group of this.groups) {
         group.update();
-        // if(group.active) active++;
+        if(group.active) active++;
     }
-    // if (active == 0) {
-    //     this.active = false;
-    // }
+    if (active == 0) {
+        this.active = false;
+    }
   }
 
   draw(){
@@ -66,6 +66,8 @@ class Layer {
         group.draw();
     }
   }
+
+  
 
   change_state(){
     if(!this.active){

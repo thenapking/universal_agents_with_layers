@@ -42,20 +42,36 @@ function create_layers(){
   let num_groups = 1;
   let radius = 100;
   
-  let num_fronds = 48;
+  let num_fronds = random([12,24,48]);
   let straightness = 60;
   let separation_distance = 60;
   let max_time = 100;
 
-  for(let i = 0; i < 6; i++){
+  let count = 0
+  for(let i = 0; i < 100; i++){
     let inner_radius = random(30,40);
     let outer_radius = random(100,200);
     let center = createVector(random(W), random(H));
 
-    c = new CircularFlower(level_id, num_bounds, num_groups, radius, attractors, repellers,
-      center, inner_radius, outer_radius, num_fronds, straightness, separation_distance, max_time)
-    c.initialize();
-    layers.push(c);
+    let valid = true;
+    let new_boundary = new Boundary("circle", {center: center, radius: outer_radius, mode: "contain"});
+    for(let other of layers){
+      for(let boundary of other.boundaries){
+        if(boundary.intersects(new_boundary)){
+          console.log("invalid")
+          valid = false;
+        }
+      }
+    }
+
+    if(valid){
+      c = new CircularFlower(level_id, num_bounds, num_groups, radius, attractors, repellers,
+        center, inner_radius, outer_radius, num_fronds, straightness, separation_distance, max_time)
+      c.initialize();
+      layers.push(c);
+      count++;
+      if(count > 6) { break; }
+    }
   }
 }
 
@@ -76,16 +92,17 @@ function draw() {
   }
 
   for(let layer of layers){
+    for(let boundary of layer.boundaries){
+      boundary.draw();
+    }
     stroke(255,0,0)
     layer.update();
     layer.draw();
+    
   }
 
   // noLoop();
 
-  // if(active < 3){
-  //   createSensorGroup();
-  // }
 }
 
 function createAttractors(){
@@ -111,36 +128,6 @@ function createRepellers(){
   }
   return arr
 }
-
-// function createSensorGroupBoundaries(){
-//   for(let i = 0; i < 7; i++){
-//     let x = random(W);
-//     let y = random(H);
-//     let center = createVector(x, y);
-//     let radius = 300
-//     let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"});
-//     slime_group_boundaries.push(boundary);
-//   }
-// }
-
-// function createSensorGroup(){
-//   groups = []
-//   for(let boundary of slime_group_boundaries){
-
-//     let speed = 8;
-
-//     let sensor_angle = 0.01; 
-//     let rotation_angle = 0.18;
-//     let sensor_dist = 60;
-//     let kill_dist = speed*0.5 - 0.01;
-//     let poop_interval = 2;
-
-
-//     let slime_group = new SensorGroup(48, boundary.center, boundary.radius, [boundary], attractors, repellers, sensor_angle, rotation_angle, sensor_dist, kill_dist, speed, poop_interval) 
-//     slime_group.initialize();
-//     groups.push(slime_group);
-//   }
-// }
 
 function keyPressed(){
   if(key == 's'){
