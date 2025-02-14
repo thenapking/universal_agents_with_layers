@@ -114,5 +114,13 @@ class Boundary {
   
       return desired;
     }
+
+    draw(){
+      if(this.type == "circle"){
+        circle(this.center.x, this.center.y, this.radius*2)
+      } else if (this.type == "rectangle"){
+        rect(this.x, this.y, this.w, this.h)
+      }
+    }
   }
   
