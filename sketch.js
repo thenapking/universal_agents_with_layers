@@ -19,7 +19,8 @@ let CELL_SIZE = 50
 let palette_names, palette_name = "Pumpkin", palette;
 let attractors, repellers;
 let layers = [];
-let circular_flower_layer;
+let flower_layer, slime_mould_layer;
+
 function setup() {
   createCanvas(W, H);
 
@@ -28,51 +29,52 @@ function setup() {
   attractors = createAttractors();
   repellers = createRepellers();
 
-  create_layers()
+  create_flower_layer()
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
 }
 
-let c;
-function create_layers(){
-  
-  let level_id = 0;
+
+function create_flower_layer(){
+  let layer = new Layer(0)
+
   let num_bounds = 1;
   let num_groups = 1;
   let radius = 100;
   
   let num_fronds = random([12,24,48]);
-  let straightness = 60;
-  let separation_distance = 60;
-  let max_time = 100;
-
+  let straightness = 100;
   let count = 0
+
   for(let i = 0; i < 100; i++){
-    let inner_radius = random(30,40);
     let outer_radius = random(100,200);
+    let inner_radius = outer_radius * 0.1
+    let trail_style = random(["line", "line_and_circle"])
+    num_fronds = trail_style=="line" ? random([36,48,60]) : random([12,24,30])
     let center = createVector(random(W), random(H));
 
-    let valid = true;
-    let new_boundary = new Boundary("circle", {center: center, radius: outer_radius, mode: "contain"});
-    for(let other of layers){
-      for(let boundary of other.boundaries){
-        if(boundary.intersects(new_boundary)){
-          console.log("invalid")
-          valid = false;
-        }
-      }
-    }
-
-    if(valid){
-      c = new CircularFlower(level_id, num_bounds, num_groups, radius, attractors, repellers,
-        center, inner_radius, outer_radius, num_fronds, straightness, separation_distance, max_time)
-      c.initialize();
-      layers.push(c);
+    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers,
+      center, inner_radius, outer_radius, num_fronds, straightness, trail_style)
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
       count++;
       if(count > 6) { break; }
     }
   }
+
+  layers.push(layer)
+  flower_layer = layer
+}
+
+function create_slime_mould_layer(){
+  let layer = new Layer(1)
+  let hide_bg =false;
+  let distinct = false;
+  let c = new SlimeMould(layer, num_bounds, num_groups, radius, attractors, repellers, hide_bg, distinct, flower_layer.boundaries)
+  c.initialize();
+
 }
 
 function draw() {
@@ -90,18 +92,11 @@ function draw() {
     stroke(255)
     r.draw();
   }
-
+  
   for(let layer of layers){
-    for(let boundary of layer.boundaries){
-      boundary.draw();
-    }
-    stroke(255,0,0)
     layer.update();
-    layer.draw();
-    
   }
 
-  // noLoop();
 
 }
 
