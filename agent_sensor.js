@@ -1,13 +1,8 @@
-// To make a flower from the slime group
-// r is inner radius
-// boundary is outer radius
-// n is number of fronds
-// separation factor is the frond straightness
-// separation distance is also a factor
-// overdrawing with a separation factor below 50 will make them overlap
-
-class SlimeGroup extends Group {
-  constructor(n, center, radius, boundaries, attractors, repellers, sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval) {
+class SensorGroup extends Group {
+  constructor(n, center, radius, boundaries, attractors, repellers, 
+    sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
+    inner_radius) 
+  {
     super(n, center, radius, boundaries);
     this.sensor_angle = sensor_angle;
     this.rotation_angle = rotation_angle;
@@ -18,18 +13,19 @@ class SlimeGroup extends Group {
     this.attractors = attractors;
     this.repellers = repellers;
     this.active = true;
+    this.inner_radius = inner_radius;
   }
   
   initialize() {
     for (let i = 0; i < this.n; i++) {
       let a = TWO_PI * i / this.n
-      let r = 90
+      let r = this.inner_radius
       let x = r*cos(a)
       let y = r*sin(a)
       let offset = i%2==0 ? createVector(0, 0) : createVector(x*0.1, y*0.1)
       let xc = x + this.center.x + offset.x
       let yc = y + this.center.y + offset.y
-      this.agents.push(new SlimeAgent(this, createVector(xc, yc), createVector(x, y)));
+      this.agents.push(new SensorAgent(this, createVector(xc, yc), createVector(x, y)));
     }
   }
 
@@ -64,7 +60,7 @@ class SlimeGroup extends Group {
   }
 }
 
-class SlimeAgent extends Agent {
+class SensorAgent extends Agent {
   constructor(group, location, velocity) {
     super(location); 
     this.vel = velocity
@@ -156,9 +152,7 @@ class SlimeAgent extends Agent {
     
   draw() {
     stroke(0,0,255)
-    // for(let p of this.trail){
-    //   circle(p.x, p.y, 5);
-    // }
+    circle(this.pos.x, this.pos.y, 5)
     this.draw_trail()
   }
 

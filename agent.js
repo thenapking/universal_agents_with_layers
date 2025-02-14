@@ -41,7 +41,6 @@ class Agent {
       }
     }
     if (count > 0) {
-      console.log('count', count)
       steer.div(count);
       steer.setMag(this.maxSpeed);
       steer.sub(this.vel);
