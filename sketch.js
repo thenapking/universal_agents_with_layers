@@ -20,6 +20,7 @@ let palette_names, palette_name = "Pumpkin", palette;
 let attractors, repellers;
 let layers = [];
 let flower_layer, slime_mould_layer;
+let sm;
 
 function setup() {
   createCanvas(W, H);
@@ -30,6 +31,7 @@ function setup() {
   repellers = createRepellers();
 
   create_flower_layer()
+  create_slime_mould_layer()
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
@@ -53,7 +55,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([12,24,30])
     let center = createVector(random(W), random(H));
-
+    
     let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers,
       center, inner_radius, outer_radius, num_fronds, straightness, trail_style)
     c.initialize();
@@ -69,11 +71,32 @@ function create_flower_layer(){
 }
 
 function create_slime_mould_layer(){
-  let layer = new Layer(1)
-  let hide_bg =false;
-  let distinct = false;
-  let c = new SlimeMould(layer, num_bounds, num_groups, radius, attractors, repellers, hide_bg, distinct, flower_layer.boundaries)
-  c.initialize();
+  let num_fronds = 8
+  let center = createVector(W/2, H/2)
+  let radius = W
+  let boundaries = []; 
+
+  for(let obj of flower_layer.objects){
+    for(let boundary of obj.boundaries){
+      let new_boundary = new Boundary("circle", {center: boundary.center, radius: boundary.radius, mode: "exclude"});
+      boundaries.push(new_boundary)
+    }
+  }
+  flower_layer.boundaries
+  let sensor_angle = 0.3
+  let rotation_angle = 0.18
+  let sensorDist = 60
+  let maxSpeed = 8;
+  let killDist = maxSpeed*0.5 - 0.01;
+  let poopInterval = 2;
+  let trail_style = "circle"
+  let straightness = 50
+  let inner_radius = 10
+
+  sm = new SensorGroup(num_fronds, center, radius, boundaries, attractors, repellers, 
+    sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
+    inner_radius, straightness, trail_style)
+  sm.initialize();
 
 }
 
@@ -96,7 +119,8 @@ function draw() {
   for(let layer of layers){
     layer.update();
   }
-
+  sm.update();
+  sm.draw();
 
 }
 
