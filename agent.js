@@ -1,6 +1,7 @@
 class Agent {
-  constructor(pos) {
+  constructor(pos, group) {
     this.pos = pos.copy();
+    this.group = group;
     this.vel = p5.Vector.random2D();
     this.acc = createVector(0, 0);
     this.maxSpeed = 1;

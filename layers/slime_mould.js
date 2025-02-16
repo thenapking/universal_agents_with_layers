@@ -1,7 +1,7 @@
 class SlimeMould extends LayerObject {
-    constructor(level_id, attractors, repellers,
+    constructor(layer, attractors, repellers,
     ) {
-      super(level_id, num_bounds, num_groups, radius, attractors, repellers);
+      super(layer, num_bounds, num_groups, radius, attractors, repellers);
   
       this.center = createVector(W/2, H/2);
 

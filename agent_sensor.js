@@ -1,21 +1,19 @@
 class SensorGroup extends Group {
-  constructor(n, center, radius, boundaries, attractors, repellers, 
-    sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
-    inner_radius, straightness = 50, trail_style = "line") 
-  {
-    super(n, center, radius, boundaries);
-    this.sensor_angle = sensor_angle;
-    this.rotation_angle = rotation_angle;
-    this.sensorDist = sensorDist;
-    this.killDist = killDist;
-    this.maxSpeed = maxSpeed;
-    this.poopInterval = poopInterval;
-    this.attractors = attractors;
-    this.repellers = repellers;
+  constructor(n, center, radius, boundaries, boundary_factor, options = {}){
+ 
+    super(n, center, radius, boundaries, boundary_factor);
+    this.sensor_angle = options.sensor_angle;
+    this.rotation_angle = options.rotation_angle;
+    this.sensorDist = options.sensorDist;
+    this.killDist = options.killDist;
+    this.maxSpeed = options.maxSpeed;
+    this.poopInterval = options.poopInterval;
+    this.attractors = options.attractors;
+    this.repellers = options.repellers;
     this.active = true;
-    this.inner_radius = inner_radius;
-    this.straightness = straightness;
-    this.trail_style = trail_style;
+    this.inner_radius = options.inner_radius;
+    this.straightness = options.straightness;
+    this.trail_style = options.trail_style;
   }
   
   initialize() {

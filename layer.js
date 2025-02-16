@@ -24,7 +24,7 @@ class Layer {
 
 
 class LayerObject {
-  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, hide_bg = true, distinct = true) {
+  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, options = {hide_bg: true, distinct: true}) {
     this.layer = layer;
     this.boundaries = [];
     this.groups = [];
@@ -35,8 +35,8 @@ class LayerObject {
     this.attractors = attractors;
     this.repellers = repellers;
     this.active = true;
-    this.hide_bg = hide_bg;
-    this.distinct = distinct;
+    this.hide_bg = options.hide_bg
+    this.distinct = options.distinct
   }
 
   initialize(){
