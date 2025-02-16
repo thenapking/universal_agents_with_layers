@@ -115,6 +115,30 @@ class Boundary {
       return desired;
     }
 
+    intersects(other) {
+      if (this.type === "circle" && other.type === "circle") {
+        return p5.Vector.dist(this.center, other.center) <= (this.radius + other.radius);
+      } else if (this.type === "rectangle" && other.type === "rectangle") {
+        return !(this.x + this.w < other.x || this.x > other.x + other.w ||
+                 this.y + this.h < other.y || this.y > other.y + other.h);
+      } else if (this.type === "circle" && other.type === "rectangle") {
+        let cx = this.center.x, cy = this.center.y;
+        let rx = other.x, ry = other.y, rw = other.w, rh = other.h;
+        let closestX = constrain(cx, rx, rx + rw);
+        let closestY = constrain(cy, ry, ry + rh);
+        let dx = cx - closestX, dy = cy - closestY;
+        return (dx * dx + dy * dy) <= (this.radius * this.radius);
+      } else if (this.type === "rectangle" && other.type === "circle") {
+        let cx = other.center.x, cy = other.center.y;
+        let rx = this.x, ry = this.y, rw = this.w, rh = this.h;
+        let closestX = constrain(cx, rx, rx + rw);
+        let closestY = constrain(cy, ry, ry + rh);
+        let dx = cx - closestX, dy = cy - closestY;
+        return (dx * dx + dy * dy) <= (other.radius * other.radius);
+      }
+      return false;
+    }
+
     draw(){
       if(this.type == "circle"){
         circle(this.center.x, this.center.y, this.radius*2)
@@ -122,5 +146,5 @@ class Boundary {
         rect(this.x, this.y, this.w, this.h)
       }
     }
-  }
+}
   

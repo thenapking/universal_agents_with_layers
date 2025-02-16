@@ -3,8 +3,29 @@ const STATE_UPDATE = 1;
 const STATE_DONE = 2;
 
 class Layer {
-  constructor(level_id, num_bounds = 1, num_groups, radius, attractors, repellers) {
-    this.level_id = level_id;
+    constructor(depth = 0, objects = [], active = true){
+        this.depth = depth;
+        this.objects = objects;
+        this.active = active;
+    }
+
+    update(){
+        let active = 0
+        for(let layer_object of this.objects){
+            layer_object.update();
+            layer_object.draw();
+            if(layer_object.active) { active++; }
+        }
+        if(active == 0){
+            this.active = false;
+        }
+    }
+}
+
+
+class LayerObject {
+  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, max_time, options = {hide_bg: true, distinct: true}) {
+    this.layer = layer;
     this.boundaries = [];
     this.groups = [];
     this.state = null;
@@ -14,13 +35,39 @@ class Layer {
     this.attractors = attractors;
     this.repellers = repellers;
     this.active = true;
+    this.max_time = max_time;
+    this.hide_bg = options.hide_bg
+    this.distinct = options.distinct
   }
 
   initialize(){
     this.state = STATE_INIT;
     this.create_boundaries();
-    this.create_groups();
-    this.state = STATE_UPDATE
+    this.active = this.check_intersection();
+
+    if(this.active){
+        this.create_groups();
+        this.state = STATE_UPDATE
+    } else {
+        this.state = STATE_DONE
+    }
+  }
+
+  check_intersection(){
+    if(!this.distinct) { return true }
+
+    let valid = true
+    for(let other of this.layer.objects){
+        for(let other_boundary of other.boundaries){
+            for(let boundary of this.boundaries){
+                if(boundary.intersects(other_boundary)){
+                    console.log("invalid")
+                    valid = false;
+                }
+            }
+        }
+    }
+    return valid
   }
 
   create_boundaries(){
@@ -51,21 +98,36 @@ class Layer {
   }
 
   update(){
-    // let active = 0
+    let active = 0
     for (let group of this.groups) {
         group.update();
-        // if(group.active) active++;
+        if(group.active) active++;
     }
-    // if (active == 0) {
-    //     this.active = false;
-    // }
+    if (active == 0 || t > this.max_time) {
+        this.active = false;
+    }
   }
 
   draw(){
+    if(this.hide_bg){
+        push();
+            fill(palette.bg);
+            for(let boundary of this.boundaries){
+                boundary.draw();
+            }
+        pop()
+    }
+
     for (let group of this.groups) {
-        group.draw();
+        push();
+            noFill();
+
+            group.draw();
+        pop();
     }
   }
+
+  
 
   change_state(){
     if(!this.active){

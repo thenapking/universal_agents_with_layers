@@ -19,7 +19,10 @@ let CELL_SIZE = 50
 let palette_names, palette_name = "Pumpkin", palette;
 let attractors, repellers;
 let layers = [];
-let circular_flower_layer;
+let flower_layer, slime_mould_layer;
+let sm;
+let t = 0;
+
 function setup() {
   createCanvas(W, H);
 
@@ -28,36 +31,84 @@ function setup() {
   attractors = createAttractors();
   repellers = createRepellers();
 
-  create_layers()
+  create_flower_layer()
+  // create_slime_mould_layer()
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
 }
 
-let c;
-function create_layers(){
-  
-  let level_id = 0;
+
+function create_flower_layer(){
+  let layer = new Layer(0)
+
   let num_bounds = 1;
   let num_groups = 1;
   let radius = 100;
   
-  let num_fronds = 48;
-  let straightness = 60;
-  let separation_distance = 60;
-  let max_time = 100;
+  let num_fronds = random([12,24,48]);
+  let straightness = 100;
+  let count = 0
 
-  for(let i = 0; i < 6; i++){
-    let inner_radius = random(30,40);
+  for(let i = 0; i < 100; i++){
     let outer_radius = random(100,200);
+    let inner_radius = outer_radius * 0.1
+    let trail_style = random(["line", "line_and_circle"])
+    num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
+    let max_time = 100;
+    let options = {center: center, 
+      inner_radius: inner_radius, 
+      outer_radius: outer_radius, 
+      num_fronds: num_fronds, 
+      straightness: straightness, 
+      trail_style: trail_style
+    }
 
-    c = new CircularFlower(level_id, num_bounds, num_groups, radius, attractors, repellers,
-      center, inner_radius, outer_radius, num_fronds, straightness, separation_distance, max_time)
+    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
+
     c.initialize();
-    layers.push(c);
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      count++;
+      if(count > 6) { break; }
+    }
   }
+
+  layers.push(layer)
+  flower_layer = layer
 }
+
+// function create_slime_mould_layer(){
+//   let num_fronds = 8
+//   let center = createVector(random(W), random(H))
+//   let radius = W
+//   let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"})
+//   let boundaries = [boundary]; 
+
+//   for(let obj of flower_layer.objects){
+//     for(let boundary of obj.boundaries){
+//       let new_boundary = new Boundary("circle", {center: boundary.center, radius: boundary.radius, mode: "exclude"});
+//       boundaries.push(new_boundary)
+//     }
+//   }
+//   flower_layer.boundaries
+//   let sensor_angle = 0.3
+//   let rotation_angle = 0.18
+//   let sensorDist = 60
+//   let maxSpeed = 8;
+//   let killDist = maxSpeed*0.5 - 0.01;
+//   let poopInterval = 2;
+//   let trail_style = "circle"
+//   let straightness = 50
+//   let inner_radius = 10
+
+//   sm = new SensorGroup(num_fronds, center, radius, boundaries, attractors, repellers, 
+//     sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
+//     inner_radius, straightness, trail_style)
+//   sm.initialize();
+
+// }
 
 function draw() {
   background(palette.bg);
@@ -74,18 +125,12 @@ function draw() {
     stroke(255)
     r.draw();
   }
-
+  
   for(let layer of layers){
-    stroke(255,0,0)
     layer.update();
-    layer.draw();
   }
 
-  // noLoop();
-
-  // if(active < 3){
-  //   createSensorGroup();
-  // }
+  t++
 }
 
 function createAttractors(){
@@ -111,36 +156,6 @@ function createRepellers(){
   }
   return arr
 }
-
-// function createSensorGroupBoundaries(){
-//   for(let i = 0; i < 7; i++){
-//     let x = random(W);
-//     let y = random(H);
-//     let center = createVector(x, y);
-//     let radius = 300
-//     let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"});
-//     slime_group_boundaries.push(boundary);
-//   }
-// }
-
-// function createSensorGroup(){
-//   groups = []
-//   for(let boundary of slime_group_boundaries){
-
-//     let speed = 8;
-
-//     let sensor_angle = 0.01; 
-//     let rotation_angle = 0.18;
-//     let sensor_dist = 60;
-//     let kill_dist = speed*0.5 - 0.01;
-//     let poop_interval = 2;
-
-
-//     let slime_group = new SensorGroup(48, boundary.center, boundary.radius, [boundary], attractors, repellers, sensor_angle, rotation_angle, sensor_dist, kill_dist, speed, poop_interval) 
-//     slime_group.initialize();
-//     groups.push(slime_group);
-//   }
-// }
 
 function keyPressed(){
   if(key == 's'){

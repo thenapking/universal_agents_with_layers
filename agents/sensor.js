@@ -1,19 +1,19 @@
 class SensorGroup extends Group {
-  constructor(n, center, radius, boundaries, attractors, repellers, 
-    sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
-    inner_radius) 
-  {
-    super(n, center, radius, boundaries);
-    this.sensor_angle = sensor_angle;
-    this.rotation_angle = rotation_angle;
-    this.sensorDist = sensorDist;
-    this.killDist = killDist;
-    this.maxSpeed = maxSpeed;
-    this.poopInterval = poopInterval;
-    this.attractors = attractors;
-    this.repellers = repellers;
+  constructor(n, center, radius, boundaries, boundary_factor, options = {}){
+ 
+    super(n, center, radius, boundaries, boundary_factor);
+    this.sensor_angle = options.sensor_angle;
+    this.rotation_angle = options.rotation_angle;
+    this.sensorDist = options.sensorDist;
+    this.killDist = options.killDist;
+    this.maxSpeed = options.maxSpeed;
+    this.poopInterval = options.poopInterval;
+    this.attractors = options.attractors;
+    this.repellers = options.repellers;
     this.active = true;
-    this.inner_radius = inner_radius;
+    this.inner_radius = options.inner_radius;
+    this.straightness = options.straightness;
+    this.trail_style = options.trail_style;
   }
   
   initialize() {
@@ -25,7 +25,7 @@ class SensorGroup extends Group {
       let offset = i%2==0 ? createVector(0, 0) : createVector(x*0.1, y*0.1)
       let xc = x + this.center.x + offset.x
       let yc = y + this.center.y + offset.y
-      this.agents.push(new SensorAgent(this, createVector(xc, yc), createVector(x, y)));
+      this.agents.push(new SensorAgent(this, createVector(xc, yc), createVector(x, y), this.trail_style));
     }
   }
 
@@ -43,7 +43,7 @@ class SensorGroup extends Group {
         let repel = agent.forage(this.repellers, -2);
         agent.applyForce(repel);
         let sep = agent.separation(this.agents);
-        agent.applyForce(sep.mult(50)); // SEPARATION FACTOR
+        agent.applyForce(sep.mult(this.straightness));
 
         agent.remove_attractors(this.attractors);
         agent.remove_attractors(this.repellers);
@@ -61,7 +61,7 @@ class SensorGroup extends Group {
 }
 
 class SensorAgent extends Agent {
-  constructor(group, location, velocity) {
+  constructor(group, location, velocity, trail_style = "line") {
     super(location); 
     this.vel = velocity
     this.group = group;
@@ -77,7 +77,7 @@ class SensorAgent extends Agent {
     this.previousPositions = [];
     this.trail = [];
     this.poopInterval = this.group.poopInterval;
-  
+    this.trailStyle = trail_style
   }
     
   computeSensor(angleOffset, attractors, strength) {
@@ -152,14 +152,35 @@ class SensorAgent extends Agent {
     
   draw() {
     stroke(0,0,255)
-    circle(this.pos.x, this.pos.y, 5)
-    this.draw_trail()
+    switch(this.trailStyle){
+      case "line":
+        this.draw_line_trail();
+        break;
+      case "circle":
+        this.draw_trail();
+        break;
+      case "line_and_circle":
+        this.draw_line_trail();
+        this.draw_trail();
+        break;
+    }
   }
 
   draw_trail() {
     push();
+    noStroke()
+    fill(palette.pen)
 
-    stroke(255, 0, 0);
+    for(let p of this.trail){
+      circle(p.x, p.y, 10)
+    }
+    pop();
+  }
+
+  draw_line_trail() {
+    push();
+
+    stroke(palette.pen)
     strokeWeight(2)
     noFill()
 
