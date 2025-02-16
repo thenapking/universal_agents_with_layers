@@ -1,8 +1,7 @@
 class CircularFlower extends LayerObject {
-  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, options = {})
+  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, max_time, options = {})
   {
-    super(layer, num_bounds, num_groups, radius, attractors, repellers);
-
+    super(layer, num_bounds, num_groups, radius, attractors, repellers, max_time);
     this.center = options.center;
     this.inner_radius = options.inner_radius;
     this.outer_radius = options.outer_radius;

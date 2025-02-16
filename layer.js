@@ -24,7 +24,7 @@ class Layer {
 
 
 class LayerObject {
-  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, options = {hide_bg: true, distinct: true}) {
+  constructor(layer, num_bounds = 1, num_groups, radius, attractors, repellers, max_time, options = {hide_bg: true, distinct: true}) {
     this.layer = layer;
     this.boundaries = [];
     this.groups = [];
@@ -35,6 +35,7 @@ class LayerObject {
     this.attractors = attractors;
     this.repellers = repellers;
     this.active = true;
+    this.max_time = max_time;
     this.hide_bg = options.hide_bg
     this.distinct = options.distinct
   }
@@ -102,7 +103,7 @@ class LayerObject {
         group.update();
         if(group.active) active++;
     }
-    if (active == 0) {
+    if (active == 0 || t > this.max_time) {
         this.active = false;
     }
   }

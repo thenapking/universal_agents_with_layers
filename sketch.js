@@ -21,6 +21,7 @@ let attractors, repellers;
 let layers = [];
 let flower_layer, slime_mould_layer;
 let sm;
+let t = 0;
 
 function setup() {
   createCanvas(W, H);
@@ -55,7 +56,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
-    
+    let max_time = 100;
     let options = {center: center, 
       inner_radius: inner_radius, 
       outer_radius: outer_radius, 
@@ -64,7 +65,7 @@ function create_flower_layer(){
       trail_style: trail_style
     }
 
-    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers, options)
+    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
 
     c.initialize();
     if(c.state === STATE_UPDATE) {
@@ -128,6 +129,8 @@ function draw() {
   for(let layer of layers){
     layer.update();
   }
+
+  t++
 }
 
 function createAttractors(){
