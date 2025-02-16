@@ -26,4 +26,12 @@ class SlimeMould extends LayerObject {
         this.sensor_dist, this.kill_dist, this.speed, this.poop_interval, this.inner_radius, this.straightness, this.trail_style
       )
     }
+
+    enforce_boundaries(agent){
+        for(let boundary of this.boundaries){
+            if(boundary.mode === "contain"){
+                if (!boundary.contains(agent.pos)) { agent.active = false; }
+            }
+        }
+    }
   }
