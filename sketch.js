@@ -72,9 +72,10 @@ function create_flower_layer(){
 
 function create_slime_mould_layer(){
   let num_fronds = 8
-  let center = createVector(W/2, H/2)
+  let center = createVector(random(W), random(H))
   let radius = W
-  let boundaries = []; 
+  let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"})
+  let boundaries = [boundary]; 
 
   for(let obj of flower_layer.objects){
     for(let boundary of obj.boundaries){
@@ -119,9 +120,6 @@ function draw() {
   for(let layer of layers){
     layer.update();
   }
-  sm.update();
-  sm.draw();
-
 }
 
 function createAttractors(){
