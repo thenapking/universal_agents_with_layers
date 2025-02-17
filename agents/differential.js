@@ -26,6 +26,11 @@ class DifferentialAgent extends Agent{
         super(pos, group);    
     }
 
+    setNeighbors(left, right) {
+        this.left = left;
+        this.right = right;
+      }
+
     applyForce(force, factor){
         let f = force.copy();
         f.mult(factor).limit(stepSize);
