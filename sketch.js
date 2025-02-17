@@ -45,7 +45,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(random(width), random(height))
   let radius = random(100, 200)
-  let max_time = 100;
+  let max_time = 200;
   let num_bounds = 1;
   let num_groups = 1
   
@@ -69,7 +69,7 @@ function create_brain_layer(){
     if(brain.state === STATE_UPDATE) {
       layer.objects.push(brain);
       count++;
-      if(count > 6) { break; }
+      if(count > 4) { break; }
     }
   }
   layers.push(layer)
@@ -92,7 +92,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
-    let max_time = 1000;
+    let max_time = 2000;
     let options = {center: center, 
       inner_radius: inner_radius, 
       outer_radius: outer_radius, 
@@ -107,7 +107,7 @@ function create_flower_layer(){
     if(c.state === STATE_UPDATE) {
       layer.objects.push(c);
       count++;
-      if(count > 6) { break; }
+      if(count > 5) { break; }
     }
   }
 
