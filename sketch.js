@@ -28,16 +28,52 @@ function setup() {
 
   pixelDensity(2);
   createBoundaries();
+  create_brain_layer()
+
   attractors = createAttractors();
   repellers = createRepellers();
 
   create_flower_layer()
-  // create_slime_mould_layer()
+
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
 }
 
+function create_brain_layer(){
+  let layer = new Layer(1)
+  let count = 0
+  let center = createVector(random(width), random(height))
+  let radius = random(100, 200)
+  let max_time = 100;
+  let num_bounds = 1;
+  let num_groups = 1
+  
+  
+  for(let i = 0; i < 100; i++){
+    let options = {center: center,
+      distinct: true,
+      hide_bg: true, 
+      desiredDistance: random([20,30,40]),
+      minSegmentLength: 5, 
+      maxSegmentLength: 15,
+      repulsionRadius: 40, 
+      attractionFactor: 0.5, 
+      alignmentFactor: 0.02, 
+      repulsionFactor: 1.2, 
+      stepSize: 20
+    }
+
+    let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time, options)
+    brain.initialize()
+    if(brain.state === STATE_UPDATE) {
+      layer.objects.push(brain);
+      count++;
+      if(count > 6) { break; }
+    }
+  }
+  layers.push(layer)
+}
 
 function create_flower_layer(){
   let layer = new Layer(0)
@@ -56,7 +92,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
-    let max_time = 100;
+    let max_time = 1000;
     let options = {center: center, 
       inner_radius: inner_radius, 
       outer_radius: outer_radius, 
@@ -79,37 +115,6 @@ function create_flower_layer(){
   flower_layer = layer
 }
 
-// function create_slime_mould_layer(){
-//   let num_fronds = 8
-//   let center = createVector(random(W), random(H))
-//   let radius = W
-//   let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"})
-//   let boundaries = [boundary]; 
-
-//   for(let obj of flower_layer.objects){
-//     for(let boundary of obj.boundaries){
-//       let new_boundary = new Boundary("circle", {center: boundary.center, radius: boundary.radius, mode: "exclude"});
-//       boundaries.push(new_boundary)
-//     }
-//   }
-//   flower_layer.boundaries
-//   let sensor_angle = 0.3
-//   let rotation_angle = 0.18
-//   let sensorDist = 60
-//   let maxSpeed = 8;
-//   let killDist = maxSpeed*0.5 - 0.01;
-//   let poopInterval = 2;
-//   let trail_style = "circle"
-//   let straightness = 50
-//   let inner_radius = 10
-
-//   sm = new SensorGroup(num_fronds, center, radius, boundaries, attractors, repellers, 
-//     sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
-//     inner_radius, straightness, trail_style)
-//   sm.initialize();
-
-// }
-
 function draw() {
   background(palette.bg);
   stroke(palette.pen);
@@ -125,6 +130,7 @@ function draw() {
     stroke(255)
     r.draw();
   }
+
   
   for(let layer of layers){
     layer.update();
