@@ -34,10 +34,44 @@ function setup() {
   repellers = createRepellers();
 
   create_flower_layer()
+  create_slime_layer()
 
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
+}
+
+function create_slime_layer(){
+  let layer = new Layer(2)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 100;
+  
+  let num_fronds = random([12,24,48]);
+  let straightness = 100;
+
+  for(let boundary of boundaries){
+    let outer_radius = 700
+    let trail_style = "line_and_circle"
+    num_fronds = random([4,5,6])
+    let max_time = 10000;
+    let options = {center: boundary.center, 
+      inner_radius: boundary.radius, 
+      outer_radius: outer_radius, 
+      num_fronds: num_fronds, 
+      straightness: straightness, 
+      trail_style: trail_style,
+      hide_bg: false,
+      distinct: false
+    }
+
+    let slim = new SlimeMould(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
+
+    slim.initialize();
+    layer.objects.push(slim);
+    layers.push(layer)
+  }
 }
 
 function create_brain_layer(){
@@ -131,17 +165,31 @@ function draw() {
     r.draw();
   }
 
-  
   for(let layer of layers){
-    layer.update();
+    if(layer.depth == 2){
+      layer.update();
+      for(let object of layer.objects){
+        if(!object.active){
+          object.reinitialize();  
+        }
+      }
+    }
+
+    if(layer.depth < 2){
+      layer.update();
+      layer.draw();
+    }
+    
   }
+
+  
 
   t++
 }
 
 function createAttractors(){
   let arr = [];
-  for(let i = 0; i < 1000; i++){
+  for(let i = 0; i < 500; i++){
     let x = random(W);
     let y = random(H);
     let a = new Attractor(x, y);
@@ -153,7 +201,7 @@ function createAttractors(){
 function createRepellers(){
   let arr = [];
   for(let boundary of boundaries){
-    for(let i = 0; i < 100; i++){
+    for(let i = 0; i < 200; i++){
       let x = boundary.center.x + random(-boundary.radius, boundary.radius);
       let y = boundary.center.y + random(-boundary.radius, boundary.radius);
       let a = new Attractor(x, y);
