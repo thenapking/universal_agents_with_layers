@@ -17,7 +17,7 @@ let H = 1200;
 let CELL_SIZE = 50
 
 let palette_names, palette_name = "Pumpkin", palette;
-let attractors, repellers;
+let attractors = [], repellers = [];
 let layers = [];
 let flower_layer, slime_mould_layer;
 let sm;
@@ -28,16 +28,14 @@ function setup() {
 
   pixelDensity(2);
   createBoundaries();
-  attractors = createAttractors();
-  repellers = createRepellers();
+  // attractors = createAttractors();
+  // repellers = createRepellers();
 
-  create_flower_layer()
-  // create_slime_mould_layer()
+  // create_flower_layer()
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
 }
-
 
 function create_flower_layer(){
   let layer = new Layer(0)
@@ -79,37 +77,6 @@ function create_flower_layer(){
   flower_layer = layer
 }
 
-// function create_slime_mould_layer(){
-//   let num_fronds = 8
-//   let center = createVector(random(W), random(H))
-//   let radius = W
-//   let boundary = new Boundary("circle", {center: center, radius: radius, mode: "contain"})
-//   let boundaries = [boundary]; 
-
-//   for(let obj of flower_layer.objects){
-//     for(let boundary of obj.boundaries){
-//       let new_boundary = new Boundary("circle", {center: boundary.center, radius: boundary.radius, mode: "exclude"});
-//       boundaries.push(new_boundary)
-//     }
-//   }
-//   flower_layer.boundaries
-//   let sensor_angle = 0.3
-//   let rotation_angle = 0.18
-//   let sensorDist = 60
-//   let maxSpeed = 8;
-//   let killDist = maxSpeed*0.5 - 0.01;
-//   let poopInterval = 2;
-//   let trail_style = "circle"
-//   let straightness = 50
-//   let inner_radius = 10
-
-//   sm = new SensorGroup(num_fronds, center, radius, boundaries, attractors, repellers, 
-//     sensor_angle, rotation_angle, sensorDist, killDist, maxSpeed, poopInterval,
-//     inner_radius, straightness, trail_style)
-//   sm.initialize();
-
-// }
-
 function draw() {
   background(palette.bg);
   stroke(palette.pen);
@@ -126,9 +93,9 @@ function draw() {
     r.draw();
   }
   
-  for(let layer of layers){
-    layer.update();
-  }
+  // for(let layer of layers){
+  //   layer.update();
+  // }
 
   t++
 }
