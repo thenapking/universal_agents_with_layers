@@ -38,6 +38,7 @@ class LayerObject {
     this.max_time = max_time;
     this.hide_bg = options.hide_bg
     this.distinct = options.distinct
+    this.options = options
   }
 
   initialize(){
@@ -98,6 +99,7 @@ class LayerObject {
   }
 
   update(){
+    if(t > this.max_time){ return }
     let active = 0
     for (let group of this.groups) {
         group.update();

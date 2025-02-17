@@ -17,7 +17,7 @@ let H = 1200;
 let CELL_SIZE = 50
 
 let palette_names, palette_name = "Pumpkin", palette;
-let attractors = [], repellers = [];
+let attractors, repellers;
 let layers = [];
 let flower_layer, slime_mould_layer;
 let sm;
@@ -28,13 +28,51 @@ function setup() {
 
   pixelDensity(2);
   createBoundaries();
-  // attractors = createAttractors();
-  // repellers = createRepellers();
+  create_brain_layer()
 
-  // create_flower_layer()
+  attractors = createAttractors();
+  repellers = createRepellers();
+
+  create_flower_layer()
+
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
+}
+
+function create_brain_layer(){
+  let layer = new Layer(1)
+  let count = 0
+  let center = createVector(random(width), random(height))
+  let radius = random(100, 200)
+  let max_time = 100;
+  let num_bounds = 1;
+  let num_groups = 1
+  
+  
+  for(let i = 0; i < 100; i++){
+    let options = {center: center,
+      distinct: true,
+      hide_bg: true, 
+      desiredDistance: random([20,30,40]),
+      minSegmentLength: 5, 
+      maxSegmentLength: 15,
+      repulsionRadius: 40, 
+      attractionFactor: 0.5, 
+      alignmentFactor: 0.02, 
+      repulsionFactor: 1.2, 
+      stepSize: 20
+    }
+
+    let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time, options)
+    brain.initialize()
+    if(brain.state === STATE_UPDATE) {
+      layer.objects.push(brain);
+      count++;
+      if(count > 6) { break; }
+    }
+  }
+  layers.push(layer)
 }
 
 function create_flower_layer(){
@@ -54,7 +92,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
-    let max_time = 100;
+    let max_time = 1000;
     let options = {center: center, 
       inner_radius: inner_radius, 
       outer_radius: outer_radius, 
@@ -92,10 +130,11 @@ function draw() {
     stroke(255)
     r.draw();
   }
+
   
-  // for(let layer of layers){
-  //   layer.update();
-  // }
+  for(let layer of layers){
+    layer.update();
+  }
 
   t++
 }

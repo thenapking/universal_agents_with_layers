@@ -37,7 +37,7 @@ class CircularFlower extends LayerObject {
   }
   
   new_group(boundary){
-    return new SensorGroup(this.num_fronds, boundary.center, boundary.radius, [boundary], 1, this.options())
+    return new SensorGroup(this.num_fronds, boundary.center, boundary.radius, [boundary], 1, this.options)
   }
 
   options(){
