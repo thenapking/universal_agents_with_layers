@@ -149,6 +149,7 @@ function create_flower_layer(){
   flower_layer = layer
 }
 
+let road_count = 0
 function draw() {
   background(palette.bg);
   stroke(palette.pen);
@@ -166,11 +167,12 @@ function draw() {
   }
 
   for(let layer of layers){
-    if(layer.depth == 2){
+    if(layer.depth == 2 ){
       layer.update();
       for(let object of layer.objects){
-        if(!object.active){
+        if(!object.active &&  road_count < 10){
           object.reinitialize();  
+          road_count++;
         }
       }
     }
@@ -189,7 +191,7 @@ function draw() {
 
 function createAttractors(){
   let arr = [];
-  for(let i = 0; i < 500; i++){
+  for(let i = 0; i < 100; i++){
     let x = random(W);
     let y = random(H);
     let a = new Attractor(x, y);
