@@ -95,9 +95,6 @@ class DifferentialGroup extends Group{
       }
 
     draw(){
-        for(let agent of this.agents){
-            circle(agent.pos.x, agent.pos.y, 5);
-        }
         beginShape();
             for(let agent of this.agents){
                 vertex(agent.pos.x, agent.pos.y);

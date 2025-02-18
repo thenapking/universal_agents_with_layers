@@ -3,23 +3,28 @@ const STATE_UPDATE = 1;
 const STATE_DONE = 2;
 
 class Layer {
-    constructor(depth = 0, objects = [], active = true){
-        this.depth = depth;
-        this.objects = objects;
-        this.active = active;
-    }
+  constructor(depth = 0, objects = [], active = true){
+    this.depth = depth;
+    this.objects = objects;
+    this.active = active;
+  }
 
-    update(){
-        let active = 0
-        for(let layer_object of this.objects){
-            layer_object.update();
-            layer_object.draw();
-            if(layer_object.active) { active++; }
-        }
-        if(active == 0){
-            this.active = false;
-        }
+  update(){
+    let active = 0
+    for(let layer_object of this.objects){
+        layer_object.update();
+        if(layer_object.active) { active++; }
     }
+    if(active == 0){
+        this.active = false;
+    }
+  }
+
+  draw(){
+    for(let layer_object of this.objects){
+        layer_object.draw();
+    }
+  }
 }
 
 

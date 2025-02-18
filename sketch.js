@@ -34,10 +34,44 @@ function setup() {
   repellers = createRepellers();
 
   create_flower_layer()
+  create_slime_layer()
 
 
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
+}
+
+function create_slime_layer(){
+  let layer = new Layer(2)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 100;
+  
+  let num_fronds = random([12,24,48]);
+  let straightness = 100;
+
+  for(let boundary of boundaries){
+    let outer_radius = 700
+    let trail_style = "line_and_circle"
+    num_fronds = random([4,5,6])
+    let max_time = 10000;
+    let options = {center: boundary.center, 
+      inner_radius: boundary.radius, 
+      outer_radius: outer_radius, 
+      num_fronds: num_fronds, 
+      straightness: straightness, 
+      trail_style: trail_style,
+      hide_bg: false,
+      distinct: false
+    }
+
+    let slim = new SlimeMould(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
+
+    slim.initialize();
+    layer.objects.push(slim);
+    layers.push(layer)
+  }
 }
 
 function create_brain_layer(){
@@ -45,7 +79,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(random(width), random(height))
   let radius = random(100, 200)
-  let max_time = 100;
+  let max_time = 200;
   let num_bounds = 1;
   let num_groups = 1
   
@@ -69,7 +103,7 @@ function create_brain_layer(){
     if(brain.state === STATE_UPDATE) {
       layer.objects.push(brain);
       count++;
-      if(count > 6) { break; }
+      if(count > 4) { break; }
     }
   }
   layers.push(layer)
@@ -92,7 +126,7 @@ function create_flower_layer(){
     let trail_style = random(["line", "line_and_circle"])
     num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
     let center = createVector(random(W), random(H));
-    let max_time = 1000;
+    let max_time = 2000;
     let options = {center: center, 
       inner_radius: inner_radius, 
       outer_radius: outer_radius, 
@@ -107,7 +141,7 @@ function create_flower_layer(){
     if(c.state === STATE_UPDATE) {
       layer.objects.push(c);
       count++;
-      if(count > 6) { break; }
+      if(count > 5) { break; }
     }
   }
 
@@ -115,6 +149,7 @@ function create_flower_layer(){
   flower_layer = layer
 }
 
+let road_count = 0
 function draw() {
   background(palette.bg);
   stroke(palette.pen);
@@ -131,17 +166,32 @@ function draw() {
     r.draw();
   }
 
-  
   for(let layer of layers){
-    layer.update();
+    if(layer.depth == 2 ){
+      layer.update();
+      for(let object of layer.objects){
+        if(!object.active &&  road_count < 10){
+          object.reinitialize();  
+          road_count++;
+        }
+      }
+    }
+
+    if(layer.depth < 2){
+      layer.update();
+      layer.draw();
+    }
+    
   }
+
+  
 
   t++
 }
 
 function createAttractors(){
   let arr = [];
-  for(let i = 0; i < 1000; i++){
+  for(let i = 0; i < 100; i++){
     let x = random(W);
     let y = random(H);
     let a = new Attractor(x, y);
@@ -153,7 +203,7 @@ function createAttractors(){
 function createRepellers(){
   let arr = [];
   for(let boundary of boundaries){
-    for(let i = 0; i < 100; i++){
+    for(let i = 0; i < 200; i++){
       let x = boundary.center.x + random(-boundary.radius, boundary.radius);
       let y = boundary.center.y + random(-boundary.radius, boundary.radius);
       let a = new Attractor(x, y);
