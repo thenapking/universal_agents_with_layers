@@ -30,14 +30,16 @@ class SpaceFillingGroup extends Group {
 
   update(){
     let active = 0;
-    
+
     for (let agent of this.agents) {
       this.enforce_boundaries(agent);
       if (agent.active){
         let sep = agent.separation(this.agents);
         let repel = agent.repell(this.repellers);
+        let aliDelta = agent.align(this.grid);
         agent.applyForce(repel, 2.6);
-        agent.applyForce(sep, 2.6);
+        agent.applyForce(sep, 2.8);
+        agent.applyAlignment(aliDelta);
         agent.update();
         active++;
       } else {
@@ -101,21 +103,51 @@ class SpaceFillingAgent extends Agent {
     super(position, group);
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
-    this.size = 20
+    this.size = 10;
+    this.width = this.size / 2;
+    this.height = this.size;
     this.spawned = false;
-    this.number_to_spawn = n
+    this.number_to_spawn = n;
     this.active = true;
+    this.angle = random(-PI, PI);
+    this.alignmentFactor = 0.5;
   }
 
-  repell(repellers){
+  applyAlignment(delta) {
+    this.angle += delta;
+    this.angle = constrain(this.angle, -PI, PI);
+  }
+  
+  align(grid) {
+    let others = this.neighbours(grid);
+    let sumAngle = 0;
+    let count = 0;
+    for (let other of others) {
+      if (other !== this) {
+        let d = p5.Vector.dist(this.position, other.position);
+        if (d < this.size * 2) {
+          sumAngle += other.angle;
+          count++;
+        }
+      }
+    }
+    if (count > 0) {
+      let desired = sumAngle / count;
+      let dAngle = desired - this.angle;
+      return this.alignmentFactor * dAngle;
+    }
+    return 0;
+  }
+
+  repell(repellers) {
     let steer = createVector(0, 0);
     let count = 0;
     for (let repeller of repellers) {
       let d = p5.Vector.dist(this.position, repeller.position);
-      if (d < 20) { 
+      if (d < this.size * 2) { 
         let diff = p5.Vector.sub(this.position, repeller.position);
         diff.normalize();
-        if(d>1) { diff.div(d); }
+        if (d > 1) { diff.div(d); }
         steer.add(diff);
         count++;
       }
@@ -133,57 +165,104 @@ class SpaceFillingAgent extends Agent {
     }
   }
 
-  spawn(){
-    if(this.spawned) { return; }
-    for(let i=0; i< this.number_to_spawn+1; i++){
-      let a = i*TWO_PI/this.number_to_spawn + random(-1,1)
-      let d = this.size * (1 + i*0.02)
-
-
-      let x = Math.round(this.position.x + d*cos(a))
-      let y = Math.round(this.position.y + d*sin(a))
-      
-      
-      let new_agent = new SpaceFillingAgent(createVector(x, y), this.group, this.number_to_spawn)
-      this.group.potential_agents.push(new_agent)
+  spawn() {
+    if (this.spawned) { return; }
+    for (let i = 0; i < this.number_to_spawn + 1; i++) {
+      let a = i * TWO_PI / this.number_to_spawn + random(-1, 1);
+      let d = this.size * (1 + i * 0.02);
+      let x = Math.round(this.position.x + d * cos(a));
+      let y = Math.round(this.position.y + d * sin(a));
+      let new_agent = new SpaceFillingAgent(createVector(x, y), this.group, this.number_to_spawn);
+      this.group.potential_agents.push(new_agent);
     }
-
-    this.spawned = true
+    this.spawned = true;
   }
 
-  neighbours(grid){
-    let col = Math.floor((this.position.x) / CELL_SIZE);
-    let row = Math.floor((this.position.y) / CELL_SIZE);
+  neighbours(grid) {
+    let col = Math.floor(this.position.x / CELL_SIZE);
+    let row = Math.floor(this.position.y / CELL_SIZE);
     return grid.getNeighboursInCell(col, row);
   }
 
-  intersecting(grid){
-    let others = this.neighbours(grid)
-    let intersects = false
-    let min_distance = Infinity
-    for(let other of others){
-      if(other == this) { continue; }
-      let d = this.distance(other)
-      let radii = this.size
-      if(d < radii){ intersects = true }
-      if((d < radii) && (radii - d) < min_distance) { min_distance = (radii - d); }
+  intersecting(grid) {
+    let others = this.neighbours(grid);
+    for (let other of others) {
+      if (other === this) { continue; }
+      if (this.intersects(other)) {
+        return true;
+      }
     }
-
-    return intersects
+    return false;
   }
 
   intersects(other) {
-    let d = this.distance(other)
-    let radii = this.size
-    return d < radii
+    let cornersA = this.getCorners();
+    let cornersB = other.getCorners();
+    
+    let axes = [];
+    axes.push(p5.Vector.sub(cornersA[1], cornersA[0]).normalize());
+    axes.push(p5.Vector.sub(cornersA[3], cornersA[0]).normalize());
+    axes.push(p5.Vector.sub(cornersB[1], cornersB[0]).normalize());
+    axes.push(p5.Vector.sub(cornersB[3], cornersB[0]).normalize());
+    
+    for (let axis of axes) {
+      let [minA, maxA] = projectPolygon(cornersA, axis);
+      let [minB, maxB] = projectPolygon(cornersB, axis);
+      if (maxA < minB || maxB < minA) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  distance(other){
+  getCorners() {
+    let half_w = this.width / 2;
+    let half_h = this.height / 2;
+    let localCorners = [
+      createVector(-half_w, -half_h),
+      createVector(half_w, -half_h),
+      createVector(half_w, half_h),
+      createVector(-half_w, half_h)
+    ];
+    let corners = [];
+    for (let pt of localCorners) {
+      let rotated = createVector(
+        pt.x * cos(this.angle) - pt.y * sin(this.angle),
+        pt.x * sin(this.angle) + pt.y * cos(this.angle)
+      );
+      rotated.add(this.position);
+      corners.push(rotated);
+    }
+    return corners;
+  }
+
+  distance(other) {
     return Math.round(dist(this.position.x, this.position.y, other.position.x, other.position.y));
   }
 
   draw() {
-    ellipse(this.position.x, this.position.y, this.size, this.size);
+    push();
+      translate(this.position.x, this.position.y);
+      rotate(this.angle);
+      rectMode(CENTER);
+      rect(0, 0, this.width, this.height);
+    pop();
   }
 }
+
+function projectPolygon(points, axis) {
+  let projection = p5.Vector.dot(points[0], axis);
+  let min = projection;
+  let max = projection;
+  for (let i = 1; i < points.length; i++) {
+    projection = p5.Vector.dot(points[i], axis);
+    if (projection < min) {
+      min = projection;
+    } else if (projection > max) {
+      max = projection;
+    }
+  }
+  return [min, max];
+}
+
 

@@ -160,30 +160,31 @@ function create_space_filling_layer(){
   let num_groups = 1;
   let radius = 100;
   
-  let num_fronds = random([12,24,48]);
-  let straightness = 100;
 
-  let outer_radius = 350;
+  let outer_radius = 200;
   let inner_radius = outer_radius * 0.1
-  let trail_style = random(["line", "line_and_circle"])
-  num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
-  let center = createVector(W/2, H/2);
   let max_time = 2000;
-  let options = {center: center, 
-    inner_radius: inner_radius, 
-    outer_radius: outer_radius, 
-    num_fronds: num_fronds, 
-    straightness: straightness, 
-    trail_style: trail_style
+  let count = 0
+  for(let i = 0; i < 100; i++){
+    let center = createVector(random(W*0.2, W*0.8), random(H*0.2,H*0.8));
+
+    let options = {center: center, 
+      inner_radius: inner_radius, 
+      outer_radius: outer_radius, 
+    }
+
+    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+
+      count++;
+      if(count > 3) { break; }
+    }
   }
 
-  let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time, options)
-
-  c.initialize();
-  if(c.state === STATE_UPDATE) {
-    layer.objects.push(c);
-  }
-  sf = layer
+ 
   layers.push(layer)
 }
 
