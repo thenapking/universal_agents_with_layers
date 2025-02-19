@@ -13,7 +13,6 @@ class CircularFlower extends LayerObject {
     this.sensor_dist = 60;
     this.kill_dist = this.speed*0.5 - 0.01;
     this.poop_interval = 2;
-    this.active
     this.trail_style = options.trail_style;
   }
 

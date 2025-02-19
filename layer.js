@@ -2,10 +2,12 @@ const STATE_INIT = 0;
 const STATE_UPDATE = 1;
 const STATE_DONE = 2;
 const STATE_SPACE_FILL = 3;
+const STATE_FINISHED = 4;
 
 class Layer {
-  constructor(depth = 0, objects = [], active = true){
+  constructor(depth = 0, order = 0, objects = [], active = true, ) {
     this.depth = depth;
+    this.order = order;
     this.objects = objects;
     this.active = active;
   }
@@ -111,7 +113,7 @@ class LayerObject {
         group.update();
         if(group.active) active++;
     }
-    if (active == 0 || t > this.max_time) {
+    if (active == 0 || t == this.max_time) {
         this.active = false;
     }
   }

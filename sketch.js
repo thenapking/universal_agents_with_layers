@@ -24,6 +24,8 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
+let current_layer = 0
+
 
 function setup() {
   createCanvas(W, H);
@@ -44,8 +46,91 @@ function setup() {
   current_state = STATE_UPDATE
 }
 
+
+
+function create_brain_layer(){
+  let order = 1
+  let depth = 1
+  let layer = new Layer(order, depth)
+  let count = 0
+  let center = createVector(random(width), random(height))
+  let radius = random(100, 200)
+  let max_time = 300;
+  let num_bounds = 1;
+  let num_groups = 1
+  
+  
+  for(let i = 0; i < 100; i++){
+    let options = {center: center,
+      distinct: true,
+      hide_bg: true, 
+      desiredDistance: random([20,30,40]),
+      minSegmentLength: 5, 
+      maxSegmentLength: 15,
+      repulsionRadius: 40, 
+      attractionFactor: 0.5, 
+      alignmentFactor: 0.02, 
+      repulsionFactor: 1.2, 
+      stepSize: 20
+    }
+
+    let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
+    brain.initialize()
+    if(brain.state === STATE_UPDATE) {
+      layer.objects.push(brain);
+      count++;
+      if(count > 4) { break; }
+    }
+  }
+  layers.push(layer)
+}
+
+function create_flower_layer(){
+  let order = 0
+  let depth = 0
+  let layer = new Layer(depth, order)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 100;
+  
+  let num_fronds = random([12,24,48]);
+  let straightness = 100;
+  let count = 0
+
+  for(let i = 0; i < 100; i++){
+    let outer_radius = random(100,200);
+    let inner_radius = outer_radius * 0.1
+    let trail_style = random(["line", "line_and_circle"])
+    num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
+    let center = createVector(random(W), random(H));
+    let max_time = 200;
+    let options = {center: center, 
+      inner_radius: inner_radius, 
+      outer_radius: outer_radius, 
+      num_fronds: num_fronds, 
+      straightness: straightness, 
+      trail_style: trail_style
+    }
+
+    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers, max_time + t, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      count++;
+      if(count > 5) { break; }
+    }
+  }
+
+  layers.push(layer)
+  flower_layer = layer
+}
+
 function create_slime_layer(){
-  let layer = new Layer(2)
+  let order = 2
+  let depth = 2
+  let layer = new Layer(order, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -77,84 +162,10 @@ function create_slime_layer(){
   }
 }
 
-function create_brain_layer(){
-  let layer = new Layer(1)
-  let count = 0
-  let center = createVector(random(width), random(height))
-  let radius = random(100, 200)
-  let max_time = 200;
-  let num_bounds = 1;
-  let num_groups = 1
-  
-  
-  for(let i = 0; i < 100; i++){
-    let options = {center: center,
-      distinct: true,
-      hide_bg: true, 
-      desiredDistance: random([20,30,40]),
-      minSegmentLength: 5, 
-      maxSegmentLength: 15,
-      repulsionRadius: 40, 
-      attractionFactor: 0.5, 
-      alignmentFactor: 0.02, 
-      repulsionFactor: 1.2, 
-      stepSize: 20
-    }
-
-    let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time, options)
-    brain.initialize()
-    if(brain.state === STATE_UPDATE) {
-      layer.objects.push(brain);
-      count++;
-      if(count > 4) { break; }
-    }
-  }
-  layers.push(layer)
-}
-
-function create_flower_layer(){
-  let layer = new Layer(0)
-
-  let num_bounds = 1;
-  let num_groups = 1;
-  let radius = 100;
-  
-  let num_fronds = random([12,24,48]);
-  let straightness = 100;
-  let count = 0
-
-  for(let i = 0; i < 100; i++){
-    let outer_radius = random(100,200);
-    let inner_radius = outer_radius * 0.1
-    let trail_style = random(["line", "line_and_circle"])
-    num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])
-    let center = createVector(random(W), random(H));
-    let max_time = 2000;
-    let options = {center: center, 
-      inner_radius: inner_radius, 
-      outer_radius: outer_radius, 
-      num_fronds: num_fronds, 
-      straightness: straightness, 
-      trail_style: trail_style
-    }
-
-    let c = new CircularFlower(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
-
-    c.initialize();
-    if(c.state === STATE_UPDATE) {
-      layer.objects.push(c);
-      count++;
-      if(count > 5) { break; }
-    }
-  }
-
-  layers.push(layer)
-  flower_layer = layer
-}
-
-let sf;
 function create_space_filling_layer(){
-  let layer = new Layer(3)
+  let order = 3
+  let depth = 3
+  let layer = new Layer(order, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -174,7 +185,7 @@ function create_space_filling_layer(){
       outer_radius: outer_radius, 
     }
 
-    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time, options)
+    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
     c.initialize();
     if(c.state === STATE_UPDATE) {
@@ -189,7 +200,6 @@ function create_space_filling_layer(){
   layers.push(layer)
 }
 
-let road_count = 0
 function draw() {
   background(palette.bg);
   stroke(palette.pen);
@@ -203,41 +213,67 @@ function draw() {
 
   update_state()
 
-  
+  draw_layers()
 
-  t++
+  if(current_state == STATE_FINISHED){
+    noLoop();
+  } else {
+    t++
+  }
 }
 
 function update_state(){
   switch(current_state){
     case STATE_INIT:
+      console.log("INIT")
       break;
     case STATE_UPDATE:
       for(let layer of layers){
-        if(layer.depth == 2  ){
+        if(layer.order == current_layer){
           layer.update();
-          for(let object of layer.objects){
-            if(!object.active &&  road_count < 10){
-              object.reinitialize();  
-              road_count++;
-            }
+          if(!layer.active) { 
+            console.log(current_layer, "DONE")
+            current_state = STATE_DONE; 
           }
         }
       }
-      if(road_count == 10){ current_state = STATE_DONE; }
       break;
     case STATE_DONE:
-      create_space_filling_layer()
-      current_state = STATE_SPACE_FILL
-      break;
-    case STATE_SPACE_FILL:
-      for(let layer of layers){
-        if(layer.depth == 3){
-          layer.update();
-          layer.draw();
-        }
+      current_layer++;
+      create_next_layer();
+      if(current_layer > 3) { 
+        current_state = STATE_FINISHED; 
+      } else {
+        current_state = STATE_UPDATE;
       }
       break;
+  }
+}
+
+function create_next_layer(){
+  switch(current_layer){
+    case 0:
+      create_brain_layer()
+      break;
+    case 1:
+      create_flower_layer()
+      break;
+    case 2:
+      create_slime_layer()
+      break; 
+    case 3:
+      create_space_filling_layer()
+      break;
+  }
+}
+
+function draw_layers(){
+  for(let current_depth = 3; current_depth >= 0; current_depth--){
+    for(let layer of layers){
+      if(layer.depth == current_depth && layer.order <= current_layer){
+        layer.draw();
+      }
+    }
   }
 }
 
@@ -250,26 +286,6 @@ function draw_attractors_and_repellers(){
   for(let r of repellers){
     stroke(255)
     r.draw();
-  }
-}
-
-function update_layers(){
-  for(let layer of layers){
-    if(layer.depth == 2 ){
-      layer.update();
-      for(let object of layer.objects){
-        if(!object.active &&  road_count < 10){
-          object.reinitialize();  
-          road_count++;
-        }
-      }
-    }
-
-    if(layer.depth < 2){
-      layer.update();
-      layer.draw();
-    }
-    
   }
 }
 

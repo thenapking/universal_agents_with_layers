@@ -6,6 +6,7 @@ class Group {
       this.agents = [];
       this.boundaries = boundaries || [];
       this.boundary_factor = boundary_factor;
+      this.active = true;
     }
     
     initialize() {
