@@ -163,7 +163,7 @@ function create_space_filling_layer(){
   let num_fronds = random([12,24,48]);
   let straightness = 100;
 
-  let outer_radius = 250;
+  let outer_radius = 350;
   let inner_radius = outer_radius * 0.1
   let trail_style = random(["line", "line_and_circle"])
   num_fronds = trail_style=="line" ? random([36,48,60]) : random([18,24,30])

@@ -12,7 +12,6 @@ class SpaceFilling extends LayerObject {
   initialize(){
     super.initialize();
     this.create_repellers();
-    console.log(this.repellers)
   }
 
   create_repellers(){
@@ -30,6 +29,6 @@ class SpaceFilling extends LayerObject {
   
   new_group(boundary){
     let options = {noiseScale: 0.01, minSize: 10, maxSize: 50, repellers: this.repellers}
-    return new SpaceFillingGroup(1000, boundary.center, boundary.radius, [boundary], 0.1, options)
+    return new SpaceFillingGroup(10, boundary.center, boundary.radius, [boundary], 0.1, options)
   }
 }
