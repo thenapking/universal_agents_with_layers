@@ -50,12 +50,12 @@ class DifferentialGroup extends Group{
 
     enforce_boundary(agent) {
         for(let boundary of this.boundaries){
-            let dir = p5.Vector.sub(agent.pos, boundary.center);
+            let dir = p5.Vector.sub(agent.position, boundary.center);
             let dist = dir.mag();
             
             if (dist > boundary.radius) {
                 dir.setMag(boundary.radius); 
-                agent.pos.set(p5.Vector.add(boundary.center, dir));
+                agent.position.set(p5.Vector.add(boundary.center, dir));
             }
         }
     }
@@ -67,9 +67,9 @@ class DifferentialGroup extends Group{
           let right = this.agents[(i + 1) % this.agents.length];
           new_agents.push(current);
 
-          let d = p5.Vector.dist(current.pos, right.pos);
+          let d = p5.Vector.dist(current.position, right.position);
           if (d > this.maxSegmentLength) {
-            let mid = p5.Vector.add(current.pos, right.pos).mult(0.5);
+            let mid = p5.Vector.add(current.position, right.position).mult(0.5);
             let new_agent = new DifferentialAgent(mid, this);
             new_agents.push(new_agent);
           }
@@ -85,7 +85,7 @@ class DifferentialGroup extends Group{
         for (let i = 0; i < this.agents.length; i++) {
             let current = this.agents[i];
             let right = this.agents[(i + 1) % this.agents.length];
-            let d = p5.Vector.dist(current.pos, right.pos);
+            let d = p5.Vector.dist(current.position, right.position);
             if (d > this.minSegmentLength) {
                 new_agents.push(current);
             }
@@ -97,15 +97,15 @@ class DifferentialGroup extends Group{
     draw(){
         beginShape();
             for(let agent of this.agents){
-                vertex(agent.pos.x, agent.pos.y);
+                vertex(agent.position.x, agent.position.y);
             }
         endShape(CLOSE);
     }
 }
 
 class DifferentialAgent extends Agent{
-    constructor(pos, group) {
-        super(pos, group);
+    constructor(position, group) {
+        super(position, group);
         this.left = null;
         this.right = null;
         this.desiredDistance = this.group.desiredDistance;
@@ -122,21 +122,21 @@ class DifferentialAgent extends Agent{
     applyForce(force, factor){
         let f = force.copy();
         f.mult(factor).limit(this.stepSize);
-        this.pos.add(f);
+        this.position.add(f);
     }
 
     attraction(){
         let forceAttraction = createVector(0, 0);
-        let dist_left =  p5.Vector.dist(this.pos, this.left.pos);
-        let dist_right = p5.Vector.dist(this.pos, this.right.pos);
+        let dist_left =  p5.Vector.dist(this.position, this.left.position);
+        let dist_right = p5.Vector.dist(this.position, this.right.position);
         
         if (dist_left > this.desiredDistance) {
-          let attract = p5.Vector.sub(this.left.pos, this.pos)
+          let attract = p5.Vector.sub(this.left.position, this.position)
           forceAttraction.add(attract);
         }
       
         if (dist_right > this.desiredDistance) {
-          let attract = p5.Vector.sub(this.right.pos, this.pos)
+          let attract = p5.Vector.sub(this.right.position, this.position)
           forceAttraction.add(attract);
         }
       
@@ -144,8 +144,8 @@ class DifferentialAgent extends Agent{
     }
       
     alignment(){
-        let midpoint = p5.Vector.add(this.left.pos, this.right.pos).div(2);
-        let forceAlignment = p5.Vector.sub(midpoint, this.pos)
+        let midpoint = p5.Vector.add(this.left.position, this.right.position).div(2);
+        let forceAlignment = p5.Vector.sub(midpoint, this.position)
         return forceAlignment;
     }
       
@@ -154,9 +154,9 @@ class DifferentialAgent extends Agent{
         for (let other of this.group.agents){
           if(other === this || other === this.left || other === this.right) continue;
           
-          let d = p5.Vector.dist(this.pos, other.pos);
+          let d = p5.Vector.dist(this.position, other.position);
           if (d < this.repulsionRadius && d > 0) {
-            let repulse = p5.Vector.sub(this.pos, other.pos)
+            let repulse = p5.Vector.sub(this.position, other.position)
               .normalize()
               .mult((this.repulsionRadius - d) / this.repulsionRadius);
             forceRepulsion.add(repulse);

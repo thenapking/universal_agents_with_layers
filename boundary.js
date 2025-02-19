@@ -38,11 +38,11 @@ class Boundary {
       }
     }
     
-    contains(pos) {
+    contains(position) {
       if (this.type === "circle") {
-        return p5.Vector.dist(pos, this.center) <= this.radius;
+        return p5.Vector.dist(position, this.center) <= this.radius;
       } else if (this.type === "rectangle") {
-        return (pos.x >= this.x && pos.x <= this.x + this.w && pos.y >= this.y && pos.y <= this.y + this.h);
+        return (position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h);
       }
       return false;
     }
@@ -53,10 +53,10 @@ class Boundary {
     }
   
     rectangular(polarity = 1){
-      let left = agent.pos.x - this.x;
-      let right = (this.x + this.w) - agent.pos.x;
-      let top = agent.pos.y - this.y;
-      let bottom = (this.y + this.h) - agent.pos.y;
+      let left = agent.position.x - this.x;
+      let right = (this.x + this.w) - agent.position.x;
+      let top = agent.position.y - this.y;
+      let bottom = (this.y + this.h) - agent.position.y;
   
       let m = min(left, right, top, bottom);
       let desired = createVector(0, 0);
@@ -70,11 +70,11 @@ class Boundary {
     }
     
     contain(agent){
-      if (this.contains(agent.pos)) return createVector(0, 0);
+      if (this.contains(agent.position)) return createVector(0, 0);
   
       let desired;
       if (this.type === "circle") {
-        desired = this.circular(this.center, agent.pos);
+        desired = this.circular(this.center, agent.position);
       } else if (this.type === "rectangle") {
         desired = this.rectangular(1);
       }
@@ -83,11 +83,11 @@ class Boundary {
     }
   
     exclude(agent){
-      if (!this.contains(agent.pos)) return createVector(0, 0);
+      if (!this.contains(agent.position)) return createVector(0, 0);
       let desired;
   
       if (this.type === "circle") {
-        desired = this.circular(agent.pos, this.center);
+        desired = this.circular(agent.position, this.center);
       } else if (this.type === "rectangle") {
         desired = this.rectangular(-1);
       }
