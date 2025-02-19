@@ -35,7 +35,7 @@ class SensorGroup extends Group {
       this.enforce_boundaries(agent);
       if (agent.active) {
         active++;
-        agent.prevPos = agent.pos.copy();
+        agent.prevPos = agent.position.copy();
         agent.update();
         agent.update_rotation();
         let forage = agent.forage(this.attractors, 2);
@@ -55,7 +55,7 @@ class SensorGroup extends Group {
 
   enforce_boundaries(agent){
     for(let boundary of this.boundaries){
-      if (!boundary.contains(agent.pos)) { agent.active = false; }
+      if (!boundary.contains(agent.position)) { agent.active = false; }
     }
   }
 }
@@ -67,7 +67,7 @@ class SensorAgent extends Agent {
     this.group = group;
     this.attractors = this.group.attractors; 
     this.boundary = this.group.boundaries[0];
-    this.prevPos = this.pos.copy();
+    this.prevPos = this.position.copy();
     this.rotation = 0;
     this.sensor_angle = this.group.sensor_angle;
     this.rotation_angle = this.group.rotation_angle;
@@ -83,7 +83,7 @@ class SensorAgent extends Agent {
   computeSensor(angleOffset, attractors, strength) {
     let x = this.sensorDist * cos(this.rotation + angleOffset);
     let y = this.sensorDist * sin(this.rotation + angleOffset);
-    let sensorPos = p5.Vector.add(this.pos, createVector(x, y));      
+    let sensorPos = p5.Vector.add(this.position, createVector(x, y));      
     let total = 0;
     let count = 0;
     for (let attractor of attractors) {
@@ -104,7 +104,7 @@ class SensorAgent extends Agent {
     let sensorCenter = this.computeSensor(0, attractors, strength);
     let sensorLeft   = this.computeSensor(this.sensor_angle, attractors, strength);
     let sensorRight  = this.computeSensor(-this.sensor_angle, attractors, strength);
-    let force = p5.Vector.sub(this.pos, this.prevPos);
+    let force = p5.Vector.sub(this.position, this.prevPos);
     if (sensorCenter > sensorLeft && sensorCenter > sensorRight) {
     } else if (sensorLeft > sensorCenter && sensorLeft > sensorRight) {
       force.rotate(this.rotation_angle);
@@ -117,35 +117,35 @@ class SensorAgent extends Agent {
   remove_attractors(attractors){
     for (let i = attractors.length - 1; i >= 0; i--) {
       let attractor = attractors[i];
-      if (p5.Vector.dist(this.pos, attractor.position) < this.killDist) {
+      if (p5.Vector.dist(this.position, attractor.position) < this.killDist) {
         attractors.splice(i, 1);
       }
     }
   }
 
   add_attractor(){
-    this.previousPositions.push(this.pos.copy());
+    this.previousPositions.push(this.position.copy());
     if (this.previousPositions.length % this.poopInterval === 0 && this.previousPositions.length > this.poopInterval) {
-      let pos = this.previousPositions[this.previousPositions.length - this.poopInterval];
-      this.trail.push(pos);
+      let position = this.previousPositions[this.previousPositions.length - this.poopInterval];
+      this.trail.push(position);
 
       let minDistance = 5 //this.maxSpeed + 2;
       let tooNear = false;
       for (let attractor of this.attractors) {
-        if (p5.Vector.dist(pos, attractor.position) < minDistance) {
+        if (p5.Vector.dist(position, attractor.position) < minDistance) {
           tooNear = true;
           break;
         }
       }
       if (!tooNear) {
-        this.attractors.push(new Attractor(pos.x, pos.y));
+        this.attractors.push(new Attractor(position.x, position.y, "poop"));
       }
     }
   }
   
     
   update_rotation() {
-    let current = p5.Vector.sub(this.pos, this.prevPos);
+    let current = p5.Vector.sub(this.position, this.prevPos);
     this.rotation = current.heading();
     return this;
   }

@@ -29,20 +29,20 @@ class CircularGroup extends Group {
 }
 
 class CircularAgent extends Agent {
-  constructor(pos, group) {
-    super(pos, group);
+  constructor(position, group) {
+    super(position, group);
     this.noiseScale = group.noiseScale;
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
   }
 
   set_size() {
-    let nz = noise(this.pos.x * this.noiseScale, this.pos.y * this.noiseScale);
+    let nz = noise(this.position.x * this.noiseScale, this.position.y * this.noiseScale);
     this.size = lerp(this.minSize, this.maxSize, nz);
   }
 
   draw() {
-    ellipse(this.pos.x, this.pos.y, this.size, this.size);
+    ellipse(this.position.x, this.position.y, this.size, this.size);
   }
 }
 

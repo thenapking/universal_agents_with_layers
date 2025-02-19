@@ -13,12 +13,12 @@ class Grid {
   }
 
   add(item) {
-      let col = Math.floor(item.position.x / CELL_SIZE);
-      let row = Math.floor(item.position.y / CELL_SIZE);
-      col = constrain(col, 1-this.cols*2, 2*this.cols - 1);
-      row = constrain(row, 1-this.rows*2, 2*this.rows - 1);
-
-      this.cells[col][row].push(item);
+    let col = Math.floor(item.position.x / CELL_SIZE);
+    let row = Math.floor(item.position.y / CELL_SIZE);
+    col = constrain(col, 1-this.cols*2, 2*this.cols - 1);
+    row = constrain(row, 1-this.rows*2, 2*this.rows - 1);
+    
+    this.cells[col][row].push(item);
   }
 
   getNeighboursInCell(col, row) {

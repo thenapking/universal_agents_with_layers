@@ -1,6 +1,6 @@
 class Agent {
-  constructor(pos, group) {
-    this.pos = pos.copy();
+  constructor(position, group) {
+    this.position = position.copy();
     this.group = group;
     this.vel = p5.Vector.random2D();
     this.acc = createVector(0, 0);
@@ -10,14 +10,15 @@ class Agent {
     this.size = 0;
   }
   
-  applyForce(force) {
+  applyForce(force, m = 1) {
+    force.mult(m);
     this.acc.add(force);
   }
   
   update() {
     this.vel.add(this.acc);
     this.vel.limit(this.maxSpeed);
-    this.pos.add(this.vel);
+    this.position.add(this.vel);
     this.acc.mult(0);
     this.vel.mult(0.95);
     if (this.vel.mag() < 0.001) {
@@ -31,9 +32,9 @@ class Agent {
     let count = 0;
     for (let other of agents) {
       if (other !== this) {
-        let d = p5.Vector.dist(this.pos, other.pos);
-        if (d < 200) { //THIS HAS BEEN CHANGED
-          let diff = p5.Vector.sub(this.pos, other.pos);
+        let d = p5.Vector.dist(this.position, other.position);
+        if (d < this.size) { //THIS HAS BEEN CHANGED
+          let diff = p5.Vector.sub(this.position, other.position);
           diff.normalize();
           diff.div(d);
           steer.add(diff);

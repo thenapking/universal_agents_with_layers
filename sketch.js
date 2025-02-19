@@ -18,10 +18,12 @@ let CELL_SIZE = 50
 
 let palette_names, palette_name = "Pumpkin", palette;
 let attractors, repellers;
+let attractors_road = [];
 let layers = [];
 let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
+let current_state = STATE_INIT
 
 function setup() {
   createCanvas(W, H);
@@ -35,10 +37,11 @@ function setup() {
 
   create_flower_layer()
   create_slime_layer()
-
-
+  
+  
   palette_names = Object.keys(palettes)
   palette = palettes[palette_name];
+  current_state = STATE_UPDATE
 }
 
 function create_slime_layer(){
@@ -149,6 +152,43 @@ function create_flower_layer(){
   flower_layer = layer
 }
 
+let sf;
+function create_space_filling_layer(){
+  let layer = new Layer(3)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 100;
+  
+
+  let outer_radius = 200;
+  let inner_radius = outer_radius * 0.1
+  let max_time = 2000;
+  let count = 0
+
+  for(let i = 0; i < 100; i++){
+    let center = createVector(random(W*0.2, W*0.8), random(H*0.2,H*0.8));
+
+    let options = {center: center, 
+      inner_radius: inner_radius, 
+      outer_radius: outer_radius, 
+    }
+
+    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+
+      count++;
+      if(count > 1) { break; }
+    }
+  }
+
+ 
+  layers.push(layer)
+}
+
 let road_count = 0
 function draw() {
   background(palette.bg);
@@ -161,11 +201,59 @@ function draw() {
     a.draw();
   }
 
+  update_state()
+
+  
+
+  t++
+}
+
+function update_state(){
+  switch(current_state){
+    case STATE_INIT:
+      break;
+    case STATE_UPDATE:
+      for(let layer of layers){
+        if(layer.depth == 2  ){
+          layer.update();
+          for(let object of layer.objects){
+            if(!object.active &&  road_count < 10){
+              object.reinitialize();  
+              road_count++;
+            }
+          }
+        }
+      }
+      if(road_count == 10){ current_state = STATE_DONE; }
+      break;
+    case STATE_DONE:
+      create_space_filling_layer()
+      current_state = STATE_SPACE_FILL
+      break;
+    case STATE_SPACE_FILL:
+      for(let layer of layers){
+        if(layer.depth == 3){
+          layer.update();
+          layer.draw();
+        }
+      }
+      break;
+  }
+}
+
+function draw_attractors_and_repellers(){
+  for(let a of attractors){
+    stroke(0)
+    a.draw();
+  }
+
   for(let r of repellers){
     stroke(255)
     r.draw();
   }
+}
 
+function update_layers(){
   for(let layer of layers){
     if(layer.depth == 2 ){
       layer.update();
@@ -183,10 +271,6 @@ function draw() {
     }
     
   }
-
-  
-
-  t++
 }
 
 function createAttractors(){
@@ -194,7 +278,7 @@ function createAttractors(){
   for(let i = 0; i < 100; i++){
     let x = random(W);
     let y = random(H);
-    let a = new Attractor(x, y);
+    let a = new Attractor(x, y, "attractor");
     arr.push(a);
   }
   return arr
@@ -206,7 +290,7 @@ function createRepellers(){
     for(let i = 0; i < 200; i++){
       let x = boundary.center.x + random(-boundary.radius, boundary.radius);
       let y = boundary.center.y + random(-boundary.radius, boundary.radius);
-      let a = new Attractor(x, y);
+      let a = new Attractor(x, y, "repeller");
       arr.push(a);
     }
   }

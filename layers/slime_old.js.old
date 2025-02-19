@@ -30,7 +30,7 @@ class SlimeMould extends LayerObject {
     enforce_boundaries(agent){
         for(let boundary of this.boundaries){
             if(boundary.mode === "contain"){
-                if (!boundary.contains(agent.pos)) { agent.active = false; }
+                if (!boundary.contains(agent.position)) { agent.active = false; }
             }
         }
     }
