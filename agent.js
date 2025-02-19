@@ -10,7 +10,8 @@ class Agent {
     this.size = 0;
   }
   
-  applyForce(force) {
+  applyForce(force, m = 1) {
+    force.mult(m);
     this.acc.add(force);
   }
   
@@ -32,7 +33,7 @@ class Agent {
     for (let other of agents) {
       if (other !== this) {
         let d = p5.Vector.dist(this.pos, other.pos);
-        if (d < 200) { //THIS HAS BEEN CHANGED
+        if (d < this.size) { //THIS HAS BEEN CHANGED
           let diff = p5.Vector.sub(this.pos, other.pos);
           diff.normalize();
           diff.div(d);

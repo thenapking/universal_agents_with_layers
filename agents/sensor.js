@@ -138,7 +138,7 @@ class SensorAgent extends Agent {
         }
       }
       if (!tooNear) {
-        this.attractors.push(new Attractor(pos.x, pos.y));
+        this.attractors.push(new Attractor(pos.x, pos.y, "poop"));
       }
     }
   }
