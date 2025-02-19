@@ -7,6 +7,7 @@ class SpaceFillingGroup extends Group {
     this.potential_agents = []; 
     this.grid = new Grid();
     this.spawning = true;
+    this.style = random(["ellipse", "rectangle", "line"])
   }
 
   initialize() {
@@ -33,7 +34,7 @@ class SpaceFillingGroup extends Group {
 
     for (let agent of this.agents) {
       this.enforce_boundaries(agent);
-      if (agent.active){
+      if (agent.active && !agent.finished) {
         let sep = agent.separation(this.agents);
         let repel = agent.repell(this.repellers);
         let aliDelta = agent.align(this.grid);
@@ -42,13 +43,18 @@ class SpaceFillingGroup extends Group {
         agent.applyAlignment(aliDelta);
         agent.update();
         active++;
-      } else {
+        if(agent.vel.mag() < 0.1) { agent.inactive_ticks++; } else { agent.inactive_ticks = 0; }
+        if(agent.inactive_ticks > 50) { agent.finished = true; }
+      } 
+      
+      if(!agent.active) {
         this.remove(agent);
       }
     }
 
     this.spawn_agents()
     this.check_and_add_agents()
+    this.active = active;
     return active;
   }
 
@@ -96,6 +102,17 @@ class SpaceFillingGroup extends Group {
       if(boundary.mode == "exclude" && boundary.contains(agent.position)) { agent.active = false; }
     }
   }
+
+  near_boundaries(agent){
+    let near = false
+    for(let boundary of this.boundaries){
+      if(boundary.type = "circle"){
+        let d = p5.Vector.dist(agent.position, boundary.center);
+        if(d > boundary.radius - 30) { near = true;  break; } 
+      }
+    }
+    return near
+  }
 }
 
 class SpaceFillingAgent extends Agent {
@@ -103,14 +120,17 @@ class SpaceFillingAgent extends Agent {
     super(position, group);
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
-    this.size = 10;
-    this.width = this.size / 2;
+    this.size = 15;
+    this.style = this.group.style
+    this.width = this.style == "line" ? this.size / 4 : this.size / 2;
     this.height = this.size;
     this.spawned = false;
     this.number_to_spawn = n;
     this.active = true;
     this.angle = random(-PI, PI);
     this.alignmentFactor = 0.5;
+    this.inactive_ticks = 0;
+    this.finished = false;  
   }
 
   applyAlignment(delta) {
@@ -244,8 +264,18 @@ class SpaceFillingAgent extends Agent {
     push();
       translate(this.position.x, this.position.y);
       rotate(this.angle);
-      rectMode(CENTER);
-      rect(0, 0, this.width, this.height);
+      switch(this.style){
+        case "ellipse":
+          ellipse(0, 0, this.width, this.height);
+          break;
+        case "rectangle":
+          rectMode(CENTER);
+          rect(0, 0, this.height * 0.8, this.width);
+          break;
+        case "line":
+          line(0, 0, this.width, 0);
+          break;
+      }
     pop();
   }
 }

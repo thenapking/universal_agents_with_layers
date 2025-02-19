@@ -165,6 +165,7 @@ function create_space_filling_layer(){
   let inner_radius = outer_radius * 0.1
   let max_time = 2000;
   let count = 0
+
   for(let i = 0; i < 100; i++){
     let center = createVector(random(W*0.2, W*0.8), random(H*0.2,H*0.8));
 
@@ -180,7 +181,7 @@ function create_space_filling_layer(){
       layer.objects.push(c);
 
       count++;
-      if(count > 3) { break; }
+      if(count > 1) { break; }
     }
   }
 
@@ -231,7 +232,6 @@ function update_state(){
       break;
     case STATE_SPACE_FILL:
       for(let layer of layers){
-  
         if(layer.depth == 3){
           layer.update();
           layer.draw();
