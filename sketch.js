@@ -25,20 +25,19 @@ let sm;
 let t = 0;
 let current_state = STATE_INIT
 let current_layer = 0
-
+const NUM_FLOWER_LAYER = 2
+const NUM_BRAIN_LAYER = 2
 
 function setup() {
   createCanvas(W, H);
 
   pixelDensity(2);
   createBoundaries();
-  create_brain_layer()
 
   attractors = createAttractors();
   repellers = createRepellers();
 
-  create_flower_layer()
-  create_slime_layer()
+  create_next_layer();
   
   
   palette_names = Object.keys(palettes)
@@ -79,7 +78,7 @@ function create_brain_layer(){
     if(brain.state === STATE_UPDATE) {
       layer.objects.push(brain);
       count++;
-      if(count > 4) { break; }
+      if(count > NUM_BRAIN_LAYER) { break; }
     }
   }
   layers.push(layer)
@@ -119,7 +118,7 @@ function create_flower_layer(){
     if(c.state === STATE_UPDATE) {
       layer.objects.push(c);
       count++;
-      if(count > 5) { break; }
+      if(count > NUM_FLOWER_LAYER) { break; }
     }
   }
 
@@ -253,10 +252,10 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
-      create_brain_layer()
+      create_flower_layer()
       break;
     case 1:
-      create_flower_layer()
+      create_brain_layer()
       break;
     case 2:
       create_slime_layer()
