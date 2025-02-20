@@ -177,8 +177,8 @@ function create_space_filling_layer(){
   let radius = 300;
   
 
-  let outer_radius = 400;
-  let max_time = 2000;
+  let outer_radius = 200;
+  let max_time = 200;
 
   let center = createVector(W/2, H/2);
 

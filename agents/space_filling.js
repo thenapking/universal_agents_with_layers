@@ -8,7 +8,7 @@ class SpaceFillingGroup extends Group {
     this.grid = new Grid();
     this.spawning = true;
     // this.style = random(["ellipse", "rectangle", "line"])
-    this.style = "rectangle"
+    this.style = "ellipse_shadow"
   }
 
   initialize() {
@@ -37,15 +37,11 @@ class SpaceFillingGroup extends Group {
       this.enforce_boundaries(agent);
       if (agent.active && !agent.finished) {
         let sep = agent.separation(this.agents);
-        let repel = agent.repell(this.repellers);
         let aliDelta = agent.align(this.grid);
-        agent.applyForce(repel, 4);
         agent.applyForce(sep, 9);
         agent.applyAlignment(aliDelta);
         agent.update();
         active++;
-        // if(agent.vel.mag() < 0.1) { agent.inactive_ticks++; } else { agent.inactive_ticks = 0; }
-        // if(agent.inactive_ticks > 50) { agent.finished = true; }
       } 
     }
 
@@ -116,11 +112,12 @@ class SpaceFillingAgent extends Agent {
     this.number_to_spawn = n;
     this.active = true;
     this.angle = random(-PI, PI);
-    this.alignmentFactor = 0.5;
+    this.alignmentFactor = 0.03;
     this.inactive_ticks = 0;
     this.finished = false;  
     this.repeller_radius = this.size * 1.2;
-    this.separation_radius = this.size
+    this.separation_radius = this.size * 1
+    this.alignment_radius = this.size * 1
   }
 
   applyAlignment(delta) {
@@ -135,7 +132,7 @@ class SpaceFillingAgent extends Agent {
     for (let other of others) {
       if (other !== this) {
         let d = p5.Vector.dist(this.position, other.position);
-        if (d < this.size * 2) {
+        if (d < this.alignment_radius) {
           sumAngle += other.angle;
           count++;
         }
@@ -147,32 +144,6 @@ class SpaceFillingAgent extends Agent {
       return this.alignmentFactor * dAngle;
     }
     return 0;
-  }
-
-  repell(repellers) {
-    let steer = createVector(0, 0);
-    let count = 0;
-    for (let repeller of repellers) {
-      let d = p5.Vector.dist(this.position, repeller.position);
-      if (d < this.repeller_radius) { 
-        let diff = p5.Vector.sub(this.position, repeller.position);
-        diff.normalize();
-        if (d > 1) { diff.div(d); }
-        steer.add(diff);
-        count++;
-      }
-    }
-    if (count > 0) {
-      steer.div(count);
-      steer.setMag(this.maxSpeed);
-      steer.sub(this.vel);
-      steer.limit(this.maxForce);
-      return steer;
-    } else {
-      let stop = this.vel.copy().mult(-1);
-      stop.limit(this.maxForce);
-      return stop;
-    }
   }
 
   spawn() {
@@ -259,8 +230,9 @@ class SpaceFillingAgent extends Agent {
           ellipse(0, 0, this.width, this.height);
           break;
         case "rectangle":
-          // rectMode(CENTER);
-          // rect(0, 0, this.height * 0.8, this.width);
+          rectMode(CENTER);
+          rect(0, 0, this.height * 0.8, this.width);
+        case "ellipse_shadow":
           fill(palette.pen)
           ellipse(-2, 2, this.width * 0.8, this.height*0.9)
           fill(palette.bg)
