@@ -163,7 +163,53 @@ class SensorAgent extends Agent {
         this.draw_line_trail();
         this.draw_trail();
         break;
+      case "road":
+        this.draw_road();
+        break;
     }
+  }
+
+  draw_road(){
+    
+    // stroke(palette.bg)
+    // strokeWeight(20)
+    // for(let i = 1; i < this.trail.length - 1; i++){
+    //   let p1 = this.trail[i]
+    //   let p2 = this.trail[i + 1]
+    //   line(p1.x, p1.y, p2.x, p2.y)
+    // }
+
+    stroke(palette.pen)
+    strokeWeight(2)
+
+    fill(palette.bg)
+
+    this.draw_line_sections(10)
+    
+  }
+
+  draw_line_sections(wd){
+    beginShape();
+      for(let i = 1; i < this.trail.length - 1; i++){
+        let p1 = this.trail[i]
+        let p2 = this.trail[i + 1]
+        this.section(p1,p2,wd)
+      }
+
+      for(let i = this.trail.length - 2; i > 0; i--){
+        let p1 = this.trail[i]
+        let p2 = this.trail[i - 1]
+        this.section(p1,p2,wd)
+      }
+    endShape(CLOSE);
+  }
+
+  section(p1,p2,wd){
+    let direction = p5.Vector.sub(p2, p1)
+    direction.normalize()
+    direction.rotate(HALF_PI)
+    direction.mult(wd)
+    vertex(p1.x + direction.x, p1.y + direction.y)
   }
 
   draw_trail() {

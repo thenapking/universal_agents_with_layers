@@ -24,7 +24,7 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 2
+let current_layer = 0
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 2
 
@@ -143,9 +143,8 @@ function create_slime_layer(){
   let straightness = 100;
 
   for(let boundary of boundaries){
-  // let boundary = boundaries[0]
     let outer_radius = 700
-    let trail_style = "line_and_circle"
+    let trail_style = "road"
     num_fronds = random([4,5,6])
     let max_time = 10000;
     let options = {center: boundary.center, 
@@ -177,7 +176,7 @@ function create_space_filling_layer(){
   let radius = 300;
   
 
-  let outer_radius = 200;
+  let outer_radius = 450;
   let max_time = 200;
 
   let center = createVector(W/2, H/2);
