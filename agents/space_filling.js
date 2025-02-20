@@ -7,7 +7,8 @@ class SpaceFillingGroup extends Group {
     this.potential_agents = []; 
     this.grid = new Grid();
     this.spawning = true;
-    this.style = random(["ellipse", "rectangle", "line"])
+    // this.style = random(["ellipse", "rectangle", "line"])
+    this.style = "rectangle"
   }
 
   initialize() {
@@ -38,18 +39,14 @@ class SpaceFillingGroup extends Group {
         let sep = agent.separation(this.agents);
         let repel = agent.repell(this.repellers);
         let aliDelta = agent.align(this.grid);
-        agent.applyForce(repel, 2.6);
-        agent.applyForce(sep, 2.8);
+        agent.applyForce(repel, 4);
+        agent.applyForce(sep, 9);
         agent.applyAlignment(aliDelta);
         agent.update();
         active++;
-        if(agent.vel.mag() < 0.1) { agent.inactive_ticks++; } else { agent.inactive_ticks = 0; }
-        if(agent.inactive_ticks > 50) { agent.finished = true; }
+        // if(agent.vel.mag() < 0.1) { agent.inactive_ticks++; } else { agent.inactive_ticks = 0; }
+        // if(agent.inactive_ticks > 50) { agent.finished = true; }
       } 
-      
-      if(!agent.active) {
-        this.remove(agent);
-      }
     }
 
     this.spawn_agents()
@@ -64,7 +61,7 @@ class SpaceFillingGroup extends Group {
     while(counter < max && this.potential_agents.length > 0){
       let agent = this.potential_agents.pop()
       
-      this.enforce_boundaries(agent);
+      this.check_boundaries(agent);
       if(!agent.active) { continue; }
 
       let intersecting = agent.intersecting(this.grid)
@@ -96,34 +93,25 @@ class SpaceFillingGroup extends Group {
     }
   }
 
-  enforce_boundaries(agent){
+  check_boundaries(agent){
     for(let boundary of this.boundaries){
       if(boundary.mode == "contain" && !boundary.contains(agent.position)) { agent.active = false; }
       if(boundary.mode == "exclude" && boundary.contains(agent.position)) { agent.active = false; }
     }
   }
-
-  near_boundaries(agent){
-    let near = false
-    for(let boundary of this.boundaries){
-      if(boundary.type = "circle"){
-        let d = p5.Vector.dist(agent.position, boundary.center);
-        if(d > boundary.radius - 30) { near = true;  break; } 
-      }
-    }
-    return near
-  }
 }
 
 class SpaceFillingAgent extends Agent {
-  constructor(position, group, n = 6) {
+  constructor(position, group, n =6) {
     super(position, group);
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
     this.size = 15;
     this.style = this.group.style
-    this.width = this.style == "line" ? this.size / 4 : this.size / 2;
-    this.height = this.size;
+    // this.width = this.style == "line" ? this.size / 3 : this.size / 2;
+    // this.height = this.style == "line" ? this.size / 3 : this.size;
+    this.width = this.size;
+    this.height = this.size*0.35;
     this.spawned = false;
     this.number_to_spawn = n;
     this.active = true;
@@ -131,6 +119,8 @@ class SpaceFillingAgent extends Agent {
     this.alignmentFactor = 0.5;
     this.inactive_ticks = 0;
     this.finished = false;  
+    this.repeller_radius = this.size * 1.2;
+    this.separation_radius = this.size
   }
 
   applyAlignment(delta) {
@@ -164,7 +154,7 @@ class SpaceFillingAgent extends Agent {
     let count = 0;
     for (let repeller of repellers) {
       let d = p5.Vector.dist(this.position, repeller.position);
-      if (d < this.size * 2) { 
+      if (d < this.repeller_radius) { 
         let diff = p5.Vector.sub(this.position, repeller.position);
         diff.normalize();
         if (d > 1) { diff.div(d); }
@@ -269,11 +259,23 @@ class SpaceFillingAgent extends Agent {
           ellipse(0, 0, this.width, this.height);
           break;
         case "rectangle":
-          rectMode(CENTER);
-          rect(0, 0, this.height * 0.8, this.width);
+          // rectMode(CENTER);
+          // rect(0, 0, this.height * 0.8, this.width);
+          fill(palette.pen)
+          ellipse(-2, 2, this.width * 0.8, this.height*0.9)
+          fill(palette.bg)
+          ellipse(0, 0, this.width * 0.8, this.height*0.9);
+          
           break;
         case "line":
-          line(0, 0, this.width, 0);
+          line(0,  0, this.width,  0);
+          break;
+        case "multiline":
+          let a = this.height * 0.85;
+          let b = this.width  * 0.75;
+          line(0, -a, b, -a);
+          line(0,  0, b,  0);
+          line(0,  a, b,  a);
           break;
       }
     pop();

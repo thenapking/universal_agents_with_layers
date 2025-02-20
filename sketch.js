@@ -24,11 +24,17 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 0
+let current_layer = 2
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 2
 
 function setup() {
+  let random_seed = Math.floor(random(1000000));
+  // random_seed = 119994
+  console.log(random_seed)
+  randomSeed(random_seed);
+  noiseSeed(random_seed);
+
   createCanvas(W, H);
 
   pixelDensity(2);
@@ -44,8 +50,6 @@ function setup() {
   palette = palettes[palette_name];
   current_state = STATE_UPDATE
 }
-
-
 
 function create_brain_layer(){
   let order = 1
@@ -139,6 +143,7 @@ function create_slime_layer(){
   let straightness = 100;
 
   for(let boundary of boundaries){
+  // let boundary = boundaries[0]
     let outer_radius = 700
     let trail_style = "line_and_circle"
     num_fronds = random([4,5,6])
@@ -156,6 +161,7 @@ function create_slime_layer(){
     let slim = new SlimeMould(layer, num_bounds, num_groups, radius, attractors, repellers, max_time, options)
 
     slim.initialize();
+    if(layer.objects.length > 1) { break; }
     layer.objects.push(slim);
     layers.push(layer)
   }
@@ -168,31 +174,24 @@ function create_space_filling_layer(){
 
   let num_bounds = 1;
   let num_groups = 1;
-  let radius = 100;
+  let radius = 300;
   
 
-  let outer_radius = 200;
-  let inner_radius = outer_radius * 0.1
+  let outer_radius = 400;
   let max_time = 2000;
-  let count = 0
 
-  for(let i = 0; i < 100; i++){
-    let center = createVector(random(W*0.2, W*0.8), random(H*0.2,H*0.8));
+  let center = createVector(W/2, H/2);
 
-    let options = {center: center, 
-      inner_radius: inner_radius, 
-      outer_radius: outer_radius, 
-    }
+  let options = {center: center, 
+    outer_radius: outer_radius, 
+  }
 
-    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+  let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
-    c.initialize();
-    if(c.state === STATE_UPDATE) {
-      layer.objects.push(c);
+  c.initialize();
+  if(c.state === STATE_UPDATE) {
+    layer.objects.push(c);
 
-      count++;
-      if(count > 1) { break; }
-    }
   }
 
  
@@ -205,10 +204,10 @@ function draw() {
   fill(palette.bg);
   strokeWeight(1.5);
 
-  for(let a of attractors){
-    stroke(0)
-    a.draw();
-  }
+  // for(let a of attractors){
+  //   stroke(0)
+  //   a.draw();
+  // }
 
   update_state()
 

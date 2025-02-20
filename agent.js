@@ -8,6 +8,7 @@ class Agent {
     this.maxForce = 0.025;
     this.active = true;
     this.size = 0;
+    this.separation_radius = this.size
   }
   
   applyForce(force, m = 1) {
@@ -33,7 +34,7 @@ class Agent {
     for (let other of agents) {
       if (other !== this) {
         let d = p5.Vector.dist(this.position, other.position);
-        if (d < this.size) { //THIS HAS BEEN CHANGED
+        if (d < this.separation_radius) { //THIS HAS BEEN CHANGED
           let diff = p5.Vector.sub(this.position, other.position);
           diff.normalize();
           diff.div(d);
