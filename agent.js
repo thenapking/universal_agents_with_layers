@@ -1,5 +1,5 @@
 class Agent {
-  constructor(position, group) {
+  constructor(position, group, separation_radius) {
     this.position = position.copy();
     this.group = group;
     this.vel = p5.Vector.random2D();
@@ -8,7 +8,7 @@ class Agent {
     this.maxForce = 0.025;
     this.active = true;
     this.size = 0;
-    this.separation_radius = this.size
+    this.separation_radius = separation_radius;
   }
   
   applyForce(force, m = 1) {

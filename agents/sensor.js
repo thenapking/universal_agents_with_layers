@@ -1,6 +1,5 @@
 class SensorGroup extends Group {
   constructor(n, center, radius, boundaries, boundary_factor, options = {}){
- 
     super(n, center, radius, boundaries, boundary_factor);
     this.sensor_angle = options.sensor_angle;
     this.rotation_angle = options.rotation_angle;
@@ -14,6 +13,7 @@ class SensorGroup extends Group {
     this.inner_radius = options.inner_radius;
     this.straightness = options.straightness;
     this.trail_style = options.trail_style;
+    this.separation_radius = options.separation_radius;
   }
   
   initialize() {
@@ -43,7 +43,7 @@ class SensorGroup extends Group {
         let repel = agent.forage(this.repellers, -2);
         agent.applyForce(repel);
         let sep = agent.separation(this.agents);
-        agent.applyForce(sep.mult(this.straightness));
+        agent.applyForce(sep, this.straightness);
 
         agent.remove_attractors(this.attractors);
         agent.remove_attractors(this.repellers);
@@ -62,7 +62,7 @@ class SensorGroup extends Group {
 
 class SensorAgent extends Agent {
   constructor(group, location, velocity, trail_style = "line") {
-    super(location); 
+    super(location, group, group.separation_radius); 
     this.vel = velocity
     this.group = group;
     this.attractors = this.group.attractors; 

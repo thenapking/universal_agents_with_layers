@@ -7,6 +7,7 @@ class CircularFlower extends LayerObject {
     this.outer_radius = options.outer_radius;
     this.num_fronds = options.num_fronds;
     this.straightness = options.straightness; // Separation factor
+    this.separation_radius = options.separation_radius;
     this.speed = 8;
     this.sensor_angle = 0.01; 
     this.rotation_angle = 0.18;
@@ -43,6 +44,6 @@ class CircularFlower extends LayerObject {
     return { attractors: attractors, repellers: repellers, sensor_angle: this.sensor_angle, rotation_angle: this.rotation_angle,
       sensorDist: this.sensor_dist, killDist: this.kill_dist, maxSpeed: this.speed, poopInterval: this.poop_interval,
       center: this.center, inner_radius: this.inner_radius, outer_radius: this.outer_radius, 
-      num_fronds: this.num_fronds, straightness: this.straightness, trail_style: this.trail_style}
+      num_fronds: this.num_fronds, straightness: this.straightness, trail_style: this.trail_style, separation_radius: this.separation_radius}
   }
 }

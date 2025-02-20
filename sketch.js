@@ -58,7 +58,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(random(width), random(height))
   let radius = random(100, 200)
-  let max_time = 300;
+  let max_time = 400;
   let num_bounds = 1;
   let num_groups = 1
   
@@ -113,6 +113,7 @@ function create_flower_layer(){
       outer_radius: outer_radius, 
       num_fronds: num_fronds, 
       straightness: straightness, 
+      separation_radius: 30,
       trail_style: trail_style
     }
 
