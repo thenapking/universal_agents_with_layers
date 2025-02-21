@@ -78,7 +78,6 @@ class Boundary {
       let desired;
   
       if (this.type === "circle" || this.type === "blob") {
-        console.log('exclude')
         desired = this.circular(agent.position, this.center);
       } else if (this.type === "rectangle") {
         desired = this.rectangular(agent.position, -1);
@@ -156,28 +155,9 @@ class Boundary {
     }
 
     calculate_centroid() {
-      if (this.type !== "blob") return
-      if (this.points.length < 3) return
-
-      let signedArea = 0;
-      let Cx = 0;
-      let Cy = 0;
-      const n = this.points.length;
+      if (this.type !== "blob") return 
       
-      for (let i = 0; i < n; i++) {
-        const current = this.points[i];
-        const next = this.points[(i + 1) % n];
-        const a = current.x * next.y - next.x * current.y;
-        signedArea += a;
-        Cx += (current.x + next.x) * a;
-        Cy += (current.y + next.y) * a;
-      }
-      
-      signedArea *= 0.5;
-      Cx /= (6 * signedArea);
-      Cy /= (6 * signedArea);
-      
-      this.center = createVector(Cx, Cy);
+      this.center = calculate_centroid(this.points);
     }
 
     draw(){
@@ -211,5 +191,29 @@ function pointInPolygon(x, y, polygon) {
     if (intersect) inside = !inside;
   }
   return inside;
+}
+
+function calculate_centroid(points) {
+  if (points.length < 3) return
+
+  let signedArea = 0;
+  let Cx = 0;
+  let Cy = 0;
+  const n = points.length;
+  
+  for (let i = 0; i < n; i++) {
+    const current = points[i];
+    const next = points[(i + 1) % n];
+    const a = current.x * next.y - next.x * current.y;
+    signedArea += a;
+    Cx += (current.x + next.x) * a;
+    Cy += (current.y + next.y) * a;
+  }
+  
+  signedArea *= 0.5;
+  Cx /= (6 * signedArea);
+  Cy /= (6 * signedArea);
+  
+  return createVector(Cx, Cy);
 }
   

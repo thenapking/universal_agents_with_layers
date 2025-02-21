@@ -181,7 +181,7 @@ function create_hole_layer(){
   let num_groups = 1;
   let radius = 300;
   let center = createVector(W/2, H/2);
-  let max_time = 200;
+  let max_time = 20000;
 
   let options = {center: center, 
     outer_radius: 350, 

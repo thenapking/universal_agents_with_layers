@@ -7,6 +7,7 @@ class Group {
       this.boundaries = boundaries || [];
       this.boundary_factor = boundary_factor;
       this.active = true;
+      // this.separation_radius = 5000000000;
     }
     
     initialize() {
@@ -15,15 +16,12 @@ class Group {
       }
     }
     
-    // An exclusion force is not being applied
     enforce_boundaries(agent){
       let force = createVector(0, 0);
       for(let boundary of this.boundaries){
-        if(boundary.mode === "exclude"){
-          force.add(boundary.steer(agent));
-        }
+        force.add(boundary.steer(agent));
       }
-      force.mult(10000);
+      force.mult(this.boundary_factor); // Not working assignment
       agent.applyForce(force);
     }
 
