@@ -14,13 +14,16 @@ class Group {
         this.agents.push(new Agent(this.center.copy(), this));
       }
     }
-  
+    
+    // An exclusion force is not being applied
     enforce_boundaries(agent){
       let force = createVector(0, 0);
       for(let boundary of this.boundaries){
-        force.add(boundary.steer(agent));
+        if(boundary.mode === "exclude"){
+          force.add(boundary.steer(agent));
+        }
       }
-      force.mult(this.boundary_factor);
+      force.mult(10000);
       agent.applyForce(force);
     }
 

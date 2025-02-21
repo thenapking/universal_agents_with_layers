@@ -24,7 +24,7 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 0
+let current_layer = 2
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 2
 
@@ -167,6 +167,36 @@ function create_slime_layer(){
   }
 }
 
+let bg
+let cg
+let bd
+let lc
+
+function create_hole_layer(){
+  let order = 0
+  let depth = 2
+  let layer = new Layer(order, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 300;
+  let center = createVector(W/2, H/2);
+  let max_time = 200;
+
+  let options = {center: center, 
+    outer_radius: 350, 
+    distinct: true
+  }
+
+  lc = new Lace(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+  lc.initialize();
+  if(lc.state === STATE_UPDATE) {
+    layer.objects.push(lc);
+  }
+
+  layers.push(layer)
+}
+
 function create_space_filling_layer(){
   let order = 3
   let depth = 3
@@ -185,10 +215,19 @@ function create_space_filling_layer(){
   let options = {center: center, 
     outer_radius: outer_radius, 
   }
+  
+  let boundaries = []
 
+  for(let b of lc.groups[0].agents) {
+    let boundary = new Boundary("blob", {mode: "exclude", points: b.points})
+    boundaries.push(boundary)
+  }
+  bd = boundaries
   let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
   c.initialize();
+  c.groups[0].boundaries = c.groups[0].boundaries.concat(boundaries)
+  cg = c.groups[0]
   if(c.state === STATE_UPDATE) {
     layer.objects.push(c);
 
@@ -257,7 +296,8 @@ function create_next_layer(){
       create_brain_layer()
       break;
     case 2:
-      create_slime_layer()
+      // create_slime_layer()
+      create_hole_layer()
       break; 
     case 3:
       create_space_filling_layer()

@@ -27,32 +27,73 @@ class Boundary {
     constructor(type, params) {
       this.type = type;
       this.mode = params.mode || "contain";
-      if (this.type === "circle") {
-        this.center = params.center.copy();
-        this.radius = params.radius;
-      } else if (this.type === "rectangle") {
-        this.x = params.x;
-        this.y = params.y;
-        this.w = params.w;
-        this.h = params.h;
+
+      switch (this.type) {
+        case "circle":
+          this.center = params.center.copy();
+          this.radius = params.radius;
+          break;
+        case "rectangle":
+          this.x = params.x;
+          this.y = params.y;
+          this.w = params.w;
+          this.h = params.h;
+          break;
+        case "blob":
+          this.points = params.points;
+          this.calculate_centroid();
+          break;
       }
     }
     
+    
     contains(position) {
-      if (this.type === "circle") {
-        return p5.Vector.dist(position, this.center) <= this.radius;
-      } else if (this.type === "rectangle") {
-        return (position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h);
+      switch (this.type) {
+        case "circle":
+          return p5.Vector.dist(position, this.center) <= this.radius;
+        case "rectangle":
+          return (position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h);
+        case "blob":
+          return pointInPolygon(position.x, position.y, this.points);
       }
+
       return false;
     }
+
+    contain(agent){
+      if (this.contains(agent.position)) return createVector(0, 0);
   
+      let desired;
+      if (this.type === "circle" || this.type === "blob") {
+        desired = this.circular(this.center, agent.position);
+      } else if (this.type === "rectangle") {
+        desired = this.rectangular(agent.position, 1);
+      }
+  
+      return desired;
+    }
+  
+    exclude(agent){
+      if (!this.contains(agent.position)) return createVector(0, 0);
+      let desired;
+  
+      if (this.type === "circle" || this.type === "blob") {
+        console.log('exclude')
+        desired = this.circular(agent.position, this.center);
+      } else if (this.type === "rectangle") {
+        desired = this.rectangular(agent.position, -1);
+      }
+      
+      return desired;
+    }
+
+    // Attraction or repulsion from a point
     circular(a, b){
       let desired = p5.Vector.sub(a, b);
       return desired;
     }
   
-    rectangular(polarity = 1){
+    rectangular(a, polarity = 1){
       let left = agent.position.x - this.x;
       let right = (this.x + this.w) - agent.position.x;
       let top = agent.position.y - this.y;
@@ -69,32 +110,6 @@ class Boundary {
       return desired;
     }
     
-    contain(agent){
-      if (this.contains(agent.position)) return createVector(0, 0);
-  
-      let desired;
-      if (this.type === "circle") {
-        desired = this.circular(this.center, agent.position);
-      } else if (this.type === "rectangle") {
-        desired = this.rectangular(1);
-      }
-  
-      return desired;
-    }
-  
-    exclude(agent){
-      if (!this.contains(agent.position)) return createVector(0, 0);
-      let desired;
-  
-      if (this.type === "circle") {
-        desired = this.circular(agent.position, this.center);
-      } else if (this.type === "rectangle") {
-        desired = this.rectangular(-1);
-      }
-      
-      return desired;
-    }
-  
     steer(agent) {
       let desired;
       if (this.mode === "contain") {
@@ -115,6 +130,7 @@ class Boundary {
       return desired;
     }
 
+    // Only for rects/circles 
     intersects(other) {
       if (this.type === "circle" && other.type === "circle") {
         return p5.Vector.dist(this.center, other.center) <= (this.radius + other.radius);
@@ -139,12 +155,61 @@ class Boundary {
       return false;
     }
 
+    calculate_centroid() {
+      if (this.type !== "blob") return
+      if (this.points.length < 3) return
+
+      let signedArea = 0;
+      let Cx = 0;
+      let Cy = 0;
+      const n = this.points.length;
+      
+      for (let i = 0; i < n; i++) {
+        const current = this.points[i];
+        const next = this.points[(i + 1) % n];
+        const a = current.x * next.y - next.x * current.y;
+        signedArea += a;
+        Cx += (current.x + next.x) * a;
+        Cy += (current.y + next.y) * a;
+      }
+      
+      signedArea *= 0.5;
+      Cx /= (6 * signedArea);
+      Cy /= (6 * signedArea);
+      
+      this.center = createVector(Cx, Cy);
+    }
+
     draw(){
-      if(this.type == "circle"){
-        circle(this.center.x, this.center.y, this.radius*2)
-      } else if (this.type == "rectangle"){
-        rect(this.x, this.y, this.w, this.h)
+      stroke(palette.pen)
+
+      switch(this.type){
+        case "circle":
+          ellipse(this.center.x, this.center.y, this.radius*2, this.radius*2)
+          break;
+        case "rectangle":
+          rect(this.x, this.y, this.w, this.h)
+          break;
+        case "blob":
+          beginShape();
+          for(let point of this.points){
+            vertex(point.x, point.y);
+          }
+          endShape(CLOSE);
+          break;
       }
     }
+}
+
+function pointInPolygon(x, y, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    let xi = polygon[i].x, yi = polygon[i].y;
+    let xj = polygon[j].x, yj = polygon[j].y;
+    let intersect = ((yi > y) !== (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
 }
   
