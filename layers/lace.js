@@ -35,20 +35,19 @@ class Lace extends LayerObject {
         drawingContext.ellipse(outer_bounds.center.x, outer_bounds.center.y, outer_bounds.radius * 2, outer_bounds.radius * 2, 0, 0, TWO_PI);
         
         for(let agent of group.agents){
-          agent.draw_html();
+          if(agent.points.length > 3) {
+            agent.draw_html_blob();
+          } else {
+            agent.draw_html();
+          }
         }
         
-        drawingContext.clip();
+        drawingContext.clip("evenodd");
 
         drawingContext.fillStyle = palette.pen;
         drawingContext.fill();
       drawingContext.restore();
     pop()
-
-    // super.draw();
-    // for(let group of this.groups){
-    //   group.draw();
-    // }
   }
 }
   

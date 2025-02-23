@@ -106,23 +106,25 @@ class BlobAgent extends CircularAgent {
   }
 
   draw_html_blob(){
-    drawingContext.beginPath();
-      drawingContext.moveTo(this.points[0].x, this.points[0].y);
-      
-      for (let i = 1; i < this.n; i++) {
-        let prev = this.points[i - 1];
-        let curr = this.points[i];
-        let midX = (prev.x + curr.x) / 2;
-        let midY = (prev.y + curr.y) / 2;
-        drawingContext.quadraticCurveTo(prev.x, prev.y, midX, midY);
-      }
+    let last = this.points[this.n - 1];
+    let first = this.points[0];
+    let midX = (last.x + first.x) / 2;
+    let midY = (last.y + first.y) / 2;
 
-      let last = this.points[this.n - 1];
-      let first = this.points[0];
-      let midX = (last.x + first.x) / 2;
-      let midY = (last.y + first.y) / 2;
-      drawingContext.quadraticCurveTo(last.x, last.y, midX, midY);
-    drawingContext.closePath();
+    drawingContext.translate(this.position.x, this.position.y);
+    drawingContext.moveTo(midX, midY);
+    
+    for (let i = 0; i < this.n; i++) {
+      let next = this.points[(i + 1) % this.n];
+      let curr = this.points[i];
+      let midX = (next.x + curr.x) / 2;
+      let midY = (next.y + curr.y) / 2;
+      drawingContext.quadraticCurveTo(curr.x, curr.y, midX, midY);
+    }
+
+    
+    
+    drawingContext.translate(-this.position.x, -this.position.y);
   }
     
 }
