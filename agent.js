@@ -55,4 +55,26 @@ class Agent {
       return stop;
     }
   }
+
+  cohesion(agents) {
+    let steer = createVector(0, 0);
+    let count = 0;
+    for (let other of agents) {
+      if (other !== this) {
+        let d = p5.Vector.dist(this.position, other.position);
+        if (d < 200) {
+          steer.add(other.position);
+          count++;
+        }
+      }
+    }
+    if (count > 0) {
+      steer.div(count);
+      steer.setMag(this.maxSpeed);
+      steer.limit(this.maxForce);
+      return steer;
+    } else {
+      return createVector(0, 0);
+    }
+  }
 }

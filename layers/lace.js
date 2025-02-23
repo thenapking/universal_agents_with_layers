@@ -9,12 +9,46 @@ class Lace extends LayerObject {
   }
 
   new_boundary(){
-    return new Boundary("circle", {center: this.center, radius: this.outer_radius, mode: "contain"});
+    return new Boundary("circle", {center: this.center, radius: this.radius, mode: "contain"});
   }
   
   new_group(boundary){
-    let options = {minSize: 50, maxSize: 100, noiseScale: 0.01}
-    return new BlobGroup(30, boundary.center, boundary.radius, [boundary], 10000, options)
+    let options = {minSize: 100, maxSize: 200, noiseScale: 0.01}
+    return new BlobGroup(100, boundary.center, boundary.radius, [boundary], 1, options)
+  }
+
+  finish(){
+    for(let group of this.groups){
+      group.create_blobs();
+    }
+  }
+
+  draw(){
+    let group = this.groups[0]
+    let outer_bounds = group.boundaries[0]
+    fill(palette.pen)
+    noStroke()
+
+    push()
+      drawingContext.save();
+        drawingContext.beginPath();
+        drawingContext.ellipse(outer_bounds.center.x, outer_bounds.center.y, outer_bounds.radius * 2, outer_bounds.radius * 2, 0, 0, TWO_PI);
+        
+        for(let agent of group.agents){
+          agent.draw_html();
+        }
+        
+        drawingContext.clip();
+
+        drawingContext.fillStyle = palette.pen;
+        drawingContext.fill();
+      drawingContext.restore();
+    pop()
+
+    // super.draw();
+    // for(let group of this.groups){
+    //   group.draw();
+    // }
   }
 }
   

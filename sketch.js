@@ -24,7 +24,7 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 2
+let current_layer = 1
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 2
 
@@ -57,8 +57,8 @@ function create_brain_layer(){
   let layer = new Layer(order, depth)
   let count = 0
   let center = createVector(random(width), random(height))
-  let radius = random(100, 200)
-  let max_time = 400;
+  let radius = random(300, 400)
+  let max_time = 200;
   let num_bounds = 1;
   let num_groups = 1
   
@@ -179,9 +179,9 @@ function create_hole_layer(){
 
   let num_bounds = 1;
   let num_groups = 1;
-  let radius = 300;
+  let radius = W;
   let center = createVector(W/2, H/2);
-  let max_time = 20000;
+  let max_time = 1000;
 
   let options = {center: center, 
     outer_radius: 350, 
@@ -204,11 +204,11 @@ function create_space_filling_layer(){
 
   let num_bounds = 1;
   let num_groups = 1;
-  let radius = 300;
+  let radius = 500;
   
 
-  let outer_radius = 450;
-  let max_time = 200;
+  let outer_radius = 50;
+  let max_time = 1000;
 
   let center = createVector(W/2, H/2);
 
@@ -219,9 +219,16 @@ function create_space_filling_layer(){
   let boundaries = []
 
   for(let b of lc.groups[0].agents) {
-    let boundary = new Boundary("blob", {mode: "exclude", points: b.points})
+    let points = []
+    for(let p of b.points){
+      let x = p.x + b.position.x
+      let y = p.y + b.position.y
+      points.push(createVector(x, y))
+    }
+    let boundary = new Boundary("blob", {mode: "exclude", points: points})
     boundaries.push(boundary)
   }
+
   bd = boundaries
   let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
@@ -242,11 +249,6 @@ function draw() {
   stroke(palette.pen);
   fill(palette.bg);
   strokeWeight(1.5);
-
-  // for(let a of attractors){
-  //   stroke(0)
-  //   a.draw();
-  // }
 
   update_state()
 
@@ -276,11 +278,19 @@ function update_state(){
       }
       break;
     case STATE_DONE:
+      for(let layer of layers){
+        if(layer.order == current_layer){
+          layer.finish();
+        }
+      }
+
       current_layer++;
-      create_next_layer();
+
       if(current_layer > 3) { 
         current_state = STATE_FINISHED; 
       } else {
+
+        create_next_layer();
         current_state = STATE_UPDATE;
       }
       break;
@@ -290,7 +300,7 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
-      create_flower_layer()
+      // create_flower_layer()
       break;
     case 1:
       create_brain_layer()
@@ -306,9 +316,9 @@ function create_next_layer(){
 }
 
 function draw_layers(){
-  for(let current_depth = 3; current_depth >= 0; current_depth--){
+  for(let current_depth = 4; current_depth >= 0; current_depth--){
     for(let layer of layers){
-      if(layer.depth == current_depth && layer.order <= current_layer){
+      if(layer.depth == current_depth ){
         layer.draw();
       }
     }

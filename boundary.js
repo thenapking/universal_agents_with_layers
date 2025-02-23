@@ -61,9 +61,9 @@ class Boundary {
     }
 
     contain(agent){
-      if (this.contains(agent.position)) return createVector(0, 0);
+      let desired = createVector(0, 0);
+      if (this.contains(agent.position)) return desired;
   
-      let desired;
       if (this.type === "circle" || this.type === "blob") {
         desired = this.circular(this.center, agent.position);
       } else if (this.type === "rectangle") {
@@ -74,16 +74,15 @@ class Boundary {
     }
   
     exclude(agent){
-      if (!this.contains(agent.position)) return createVector(0, 0);
-      let desired;
+      let desired = createVector(0, 0);
+      if (!this.contains(agent.position)) return desired;
   
       if (this.type === "circle" || this.type === "blob") {
         desired = this.circular(agent.position, this.center);
       } else if (this.type === "rectangle") {
         desired = this.rectangular(agent.position, -1);
       }
-      
-      return desired;
+      return desired
     }
 
     // Attraction or repulsion from a point
@@ -93,10 +92,10 @@ class Boundary {
     }
   
     rectangular(a, polarity = 1){
-      let left = agent.position.x - this.x;
-      let right = (this.x + this.w) - agent.position.x;
-      let top = agent.position.y - this.y;
-      let bottom = (this.y + this.h) - agent.position.y;
+      let left = a.x - this.x;
+      let right = (this.x + this.w) - a.x;
+      let top = a.y - this.y;
+      let bottom = (this.y + this.h) - a.y;
   
       let m = min(left, right, top, bottom);
       let desired = createVector(0, 0);
@@ -110,15 +109,13 @@ class Boundary {
     }
     
     steer(agent) {
-      let desired;
+      let desired = createVector(0, 0);
       if (this.mode === "contain") {
         desired = this.contain(agent);
       } else if (this.mode === "exclude") {
         desired = this.exclude(agent);
-      } else {
-        desired = createVector(0, 0);
-      }
-  
+      } 
+
       if(desired.mag() > 0){
         desired.normalize();
         desired.mult(agent.maxSpeed);

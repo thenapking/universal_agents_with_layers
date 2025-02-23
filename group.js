@@ -21,7 +21,7 @@ class Group {
       for(let boundary of this.boundaries){
         force.add(boundary.steer(agent));
       }
-      force.mult(this.boundary_factor); // Not working assignment
+      force.mult(4); // Not working assignment
       agent.applyForce(force);
     }
 
