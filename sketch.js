@@ -57,7 +57,7 @@ function create_brain_layer(){
   let layer = new Layer(order, depth)
   let count = 0
   let center = createVector(W/2, H/2);
-  let radius = H
+  let radius = H*1.1
   let max_time = 3000;
   let num_bounds = 1;
   let num_groups = 1
@@ -91,22 +91,23 @@ function create_brain_layer(){
     repulsionFactor: 1.5, 
     stepSize: 1
   }
+
+  let lines_options = {
+    center: center,
+    radius: radius,
+    distinct: true,
+    hide_bg: true, 
+    desiredDistance: 12,
+    minSegmentLength: 5, 
+    maxSegmentLength: 10,
+    repulsionRadius: 61,
+    alignmentFactor: 0.49, // helps set spaciing between lines 
+    repulsionFactor: .45, 
+    stepSize: 8.1
+  }
   
   for(let i = 0; i < 100; i++){
-    let options = {
-      center: center,
-      radius: radius,
-      distinct: true,
-      hide_bg: true, 
-      desiredDistance: random(50,70), // random([15, 20, 25]),
-      minSegmentLength: 3, 
-      maxSegmentLength: 10,
-      repulsionRadius: random(55, 60),  // should be balanced with desiredDistance, should be more than 40
-      attractionFactor: 1.8, 
-      alignmentFactor: 0.62, // helps set spaciing between lines 
-      repulsionFactor: 1.5, 
-      stepSize: 1
-    }
+    let options = lines_options
 
     let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
     brain.initialize()

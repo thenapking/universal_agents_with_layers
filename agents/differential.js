@@ -97,8 +97,8 @@ class DifferentialGroup extends Group {
   }
 
   draw() {
-    this.draw_line(7);
-    this.draw_with_blobs();
+    // this.draw_with_blobs();
+    this.draw_with_lines();
   }
 
   draw_line(size = 2) {
@@ -124,6 +124,8 @@ class DifferentialGroup extends Group {
   }
 
   draw_with_blobs() {
+    this.draw_line(size * 0.75);
+
     for (let i = 0; i < this.agents.length - 1; i++) {
       let agent = this.agents[i];
       let next_agent = this.agents[i + 1];
@@ -135,9 +137,27 @@ class DifferentialGroup extends Group {
         fill(palette.pen);
         translate(agent.position.x, agent.position.y);
         rotate(angle);
-        ellipse(0, 0, 5, 10);
+        ellipse(0, 0, size/2, size);
       pop();
     }
+  }
+
+  draw_with_lines(size = 10) {
+    this.draw_line(size*2);
+
+    push();
+      stroke(palette.pen);
+      strokeWeight(2);
+      for (let i = 0; i < this.agents.length - 1; i++) {
+        let agent = this.agents[i];
+        let next_agent = this.agents[i + 1];
+        let tangent = p5.Vector.sub(next_agent.position, agent.position).normalize();
+        let normal = createVector(-tangent.y, tangent.x).mult(size)
+        let top = p5.Vector.add(agent.position, normal);
+        let bottom = p5.Vector.sub(agent.position, normal);
+        line(top.x, top.y, bottom.x, bottom.y);
+      }
+    pop();
   }
 }
 
