@@ -58,7 +58,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(W/2, H/2);
   let radius = H*1.1
-  let max_time = 300;
+  let max_time = 2000;
   let num_bounds = 1;
   let num_groups = 1
   
