@@ -1,5 +1,5 @@
-class DifferentialGroup extends Group{
-  constructor(n, center, radius, boundaries, options = {}){
+class DifferentialGroup extends Group {
+  constructor(n, center, radius, boundaries, options = {}) {
     super(n, center, radius, boundaries);
     this.desiredDistance = options.desiredDistance || 20;
     this.maxSegmentLength = options.maxSegmentLength || 15;
@@ -28,28 +28,34 @@ class DifferentialGroup extends Group{
     }
   }
 
-  update(){
-    this.assignNeighbors()
-
-    for(let agent of this.agents){
+  update() {
+    this.assignNeighbors();
+    
+    // Create and populate a grid for efficient neighbor lookup
+    let grid = new Grid();
+    for (let agent of this.agents) {
+      grid.add(agent);
+    }
+    
+    // Update each agent using the grid for repulsion calculations
+    for (let agent of this.agents) {
       let forceAttraction = agent.attraction();
-      let forceAlignment = agent.alignment();
-      let forceRepulsion = agent.repulsion();
+      let forceAlignment  = agent.alignment();
+      let forceRepulsion  = agent.repulsion(grid);  // Pass grid here
       
       agent.applyForce(forceAttraction, this.attractionFactor);
-      agent.applyForce(forceAlignment, this.alignmentFactor);
-      agent.applyForce(forceRepulsion, this.repulsionFactor);
+      agent.applyForce(forceAlignment,  this.alignmentFactor);
+      agent.applyForce(forceRepulsion,  this.repulsionFactor);
 
       this.enforce_boundary(agent);
     }
 
-    this.add_agents()
-    this.remove_agents()
+    this.add_agents();
+    this.remove_agents();
   }
 
-
   enforce_boundary(agent) {
-    for(let boundary of this.boundaries){
+    for (let boundary of this.boundaries) {
       let dir = p5.Vector.sub(agent.position, boundary.center);
       let dist = dir.mag();
       
@@ -60,9 +66,8 @@ class DifferentialGroup extends Group{
     }
   }
 
-  add_agents(){
-    let new_agents = []
-
+  add_agents() {
+    let new_agents = [];
     for (let i = 0; i < this.agents.length; i++) {
       let current = this.agents[i];
       let right = this.agents[(i + 1) % this.agents.length];
@@ -75,56 +80,51 @@ class DifferentialGroup extends Group{
         new_agents.push(new_agent);
       }
     }
-    
-    this.agents = new_agents
+    this.agents = new_agents;
   }
 
-
-  remove_agents(){
+  remove_agents() {
     let new_agents = [];
-    
     for (let i = 0; i < this.agents.length; i++) {
       let current = this.agents[i];
       let right = this.agents[(i + 1) % this.agents.length];
       let d = p5.Vector.dist(current.position, right.position);
       if (d > this.minSegmentLength) {
-      new_agents.push(current);
+        new_agents.push(current);
       }
     }
-    
-    this.agents = new_agents
+    this.agents = new_agents;
   }
 
-  draw(){
-    
-    this.draw_line(7)
+  draw() {
+    this.draw_line(7);
     this.draw_with_blobs();
   }
 
-  draw_line(size = 2){
+  draw_line(size = 2) {
     push();
       stroke(128, 128, 128);
       strokeWeight(size);
       beginShape();
-        for(let agent of this.agents){
+        for (let agent of this.agents) {
           vertex(agent.position.x, agent.position.y);
         }
       endShape(CLOSE);
     pop();
   }
 
-  draw_with_dots(size = 7){
+  draw_with_dots(size = 7) {
     push();
       noStroke();
-      fill(palette.pen)
-      for(let agent of this.agents){
+      fill(palette.pen);
+      for (let agent of this.agents) {
         circle(agent.position.x, agent.position.y, size);
       }
     pop();
   }
 
-  draw_with_blobs(){
-    for(let i = 0; i < this.agents.length - 1; i++){
+  draw_with_blobs() {
+    for (let i = 0; i < this.agents.length - 1; i++) {
       let agent = this.agents[i];
       let next_agent = this.agents[i + 1];
       let tangent = p5.Vector.sub(next_agent.position, agent.position).normalize();
@@ -132,21 +132,16 @@ class DifferentialGroup extends Group{
 
       push();
         noStroke();
-        fill(palette.pen)
-        translate(agent.position.x, agent.position.y)
-        rotate(angle)
-        ellipse(0, 0, 5, 10) 
-        // beginShape();
-        // for(let p of agent.points){
-        //   curveVertex(agent.position.x + p.x, agent.position.y + p.y);
-        // }
-        // endShape(CLOSE);
+        fill(palette.pen);
+        translate(agent.position.x, agent.position.y);
+        rotate(angle);
+        ellipse(0, 0, 5, 10);
       pop();
     }
   }
 }
 
-class DifferentialAgent extends Agent{
+class DifferentialAgent extends Agent {
   constructor(position, group) {
     super(position, group);
     this.left = null;
@@ -154,28 +149,6 @@ class DifferentialAgent extends Agent{
     this.desiredDistance = this.group.desiredDistance;
     this.repulsionRadius = this.group.repulsionRadius;
     this.stepSize = this.group.stepSize;
-    this.points = this.create_blob();
-  }
-
-  create_blob(){
-    let points = [];
-    let n = int(random(5, 8))
-    let base = 4
-    let a = 10
-    let b = 5
-
-    for (let i = 0; i < n; i++) {
-      let angle = i*TWO_PI/n;
-
-      let nz = noise(cos(angle)*0.0001, sin(angle)*0.0001, i);
-      let ra = base + map(nz, 0, 1, -a, a);
-      let rb = base + map(nz, 0, 1, -b, b);
-      let x = ra * cos(angle);
-      let y = rb * sin(angle);
-
-      points.push(createVector(x, y));
-    }
-    return points;
   }
 
   setNeighbors(left, right) {
@@ -183,52 +156,53 @@ class DifferentialAgent extends Agent{
     this.right = right;
   }
 
-  applyForce(force, factor){
+  applyForce(force, factor) {
     let f = force.copy();
     f.mult(factor).limit(this.stepSize);
     this.position.add(f);
   }
 
-  attraction(){
+  attraction() {
     let forceAttraction = createVector(0, 0);
     let dist_left =  p5.Vector.dist(this.position, this.left.position);
     let dist_right = p5.Vector.dist(this.position, this.right.position);
     
     if (dist_left > this.desiredDistance) {
-    let attract = p5.Vector.sub(this.left.position, this.position)
-    forceAttraction.add(attract);
+      let attract = p5.Vector.sub(this.left.position, this.position);
+      forceAttraction.add(attract);
     }
   
     if (dist_right > this.desiredDistance) {
-    let attract = p5.Vector.sub(this.right.position, this.position)
-    forceAttraction.add(attract);
+      let attract = p5.Vector.sub(this.right.position, this.position);
+      forceAttraction.add(attract);
     }
   
     return forceAttraction;
   }
   
-  alignment(){
+  alignment() {
     let midpoint = p5.Vector.add(this.left.position, this.right.position).div(2);
-    let forceAlignment = p5.Vector.sub(midpoint, this.position)
+    let forceAlignment = p5.Vector.sub(midpoint, this.position);
     return forceAlignment;
   }
   
-  repulsion(){
+  repulsion(grid) {
     let forceRepulsion = createVector(0, 0);
-    for (let other of this.group.agents){
-    if(other === this || other === this.left || other === this.right) continue;
+    let col = Math.floor(this.position.x / CELL_SIZE);
+    let row = Math.floor(this.position.y / CELL_SIZE);
     
-    let d = p5.Vector.dist(this.position, other.position);
-    if (d < this.repulsionRadius && d > 0) {
-    let repulse = p5.Vector.sub(this.position, other.position)
-      .normalize()
-      .mult((this.repulsionRadius - d) / this.repulsionRadius);
-    forceRepulsion.add(repulse);
-    }
+    let neighbors = grid.getNeighbours(col, row);
+    for (let other of neighbors) {
+      if (other === this || other === this.left || other === this.right) continue;
+      let d = p5.Vector.dist(this.position, other.position);
+      if (d < this.repulsionRadius && d > 0) {
+        let repulse = p5.Vector.sub(this.position, other.position)
+                        .normalize()
+                        .mult((this.repulsionRadius - d) / this.repulsionRadius);
+        forceRepulsion.add(repulse);
+      }
     }
   
     return forceRepulsion;
   }
-
 }
-  

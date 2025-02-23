@@ -26,7 +26,7 @@ let t = 0;
 let current_state = STATE_INIT
 let current_layer = 1
 const NUM_FLOWER_LAYER = 2
-const NUM_BRAIN_LAYER = 0
+const NUM_BRAIN_LAYER = 1
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -57,13 +57,14 @@ function create_brain_layer(){
   let layer = new Layer(order, depth)
   let count = 0
   let center = createVector(W/2, H/2);
-  let radius = random(200, 250)
-  let max_time = 600;
+  let radius = H
+  let max_time = 3000;
   let num_bounds = 1;
   let num_groups = 1
   
   let thicker_options = {
     center: center,
+    radius: radius,
     distinct: true,
     hide_bg: true, 
     desiredDistance: 50, // random([15, 20, 25]),
@@ -75,22 +76,37 @@ function create_brain_layer(){
     repulsionFactor: 1.5, 
     stepSize: 10
   }
+
+  let fatter_options = {
+    center: center,
+    radius: radius,
+    distinct: true,
+    hide_bg: true, 
+    desiredDistance: random(50,70), // random([15, 20, 25]),
+    minSegmentLength: 3, 
+    maxSegmentLength: 10,
+    repulsionRadius: random(55, 60),  // should be balanced with desiredDistance, should be more than 40
+    attractionFactor: 1.8, 
+    alignmentFactor: 0.62, // helps set spaciing between lines 
+    repulsionFactor: 1.5, 
+    stepSize: 1
+  }
   
   for(let i = 0; i < 100; i++){
     let options = {
       center: center,
+      radius: radius,
       distinct: true,
       hide_bg: true, 
-      desiredDistance: 30, // random([15, 20, 25]),
+      desiredDistance: random(50,70), // random([15, 20, 25]),
       minSegmentLength: 3, 
       maxSegmentLength: 10,
-      repulsionRadius: 41,  // should be balanced with desiredDistance, should be more than 40
+      repulsionRadius: random(55, 60),  // should be balanced with desiredDistance, should be more than 40
       attractionFactor: 1.8, 
-      alignmentFactor: .6, // helps set spaciing between lines 
+      alignmentFactor: 0.62, // helps set spaciing between lines 
       repulsionFactor: 1.5, 
-      stepSize: 10
+      stepSize: 1
     }
-    
 
     let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
     brain.initialize()
