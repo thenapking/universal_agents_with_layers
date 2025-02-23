@@ -24,7 +24,7 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 2
+let current_layer = 1
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 1
 
@@ -58,7 +58,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(W/2, H/2);
   let radius = H*1.1
-  let max_time = 3000;
+  let max_time = 300;
   let num_bounds = 1;
   let num_groups = 1
   
@@ -335,7 +335,7 @@ function create_next_layer(){
       // create_flower_layer()
       break;
     case 1:
-      // create_brain_layer()
+      create_brain_layer()
       break;
     case 2:
       // create_slime_layer()

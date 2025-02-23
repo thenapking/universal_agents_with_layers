@@ -24,10 +24,31 @@ class Lace extends LayerObject {
   }
 
   draw(){
+    this.clear_background();
+    // this.drawHatchedOuterShape();
+  }
+
+  clear_background(){
     let group = this.groups[0]
     let outer_bounds = group.boundaries[0]
-    fill(palette.pen)
-    noStroke()
+
+    // --- Create a hatch pattern (45° diagonal) using an offscreen canvas ---
+    let patternCanvas = document.createElement('canvas');
+    patternCanvas.width = 40;
+    patternCanvas.height = 40;
+    let pctx = patternCanvas.getContext('2d');
+    pctx.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+    pctx.strokeStyle = palette.pen; // hatch line color (adjust if needed)
+    pctx.lineWidth = 1;
+    pctx.beginPath();
+    // Draw a line from bottom left to top right (45°)
+    pctx.moveTo(0, patternCanvas.height);
+    pctx.lineTo(patternCanvas.width, 0);
+    pctx.stroke();
+    
+    // Create a repeating pattern from our offscreen canvas.
+    let hatchPattern = drawingContext.createPattern(patternCanvas, 'repeat');
+    
 
     push()
       drawingContext.save();
@@ -43,11 +64,12 @@ class Lace extends LayerObject {
         }
         
         drawingContext.clip("evenodd");
-
-        drawingContext.fillStyle = palette.pen;
-        drawingContext.fill();
+        
+        let r = outer_bounds.radius;
+        drawingContext.fillStyle = hatchPattern;
+        drawingContext.fillRect(-r, -r, r * 2, r * 2);
       drawingContext.restore();
     pop()
   }
-}
   
+}
