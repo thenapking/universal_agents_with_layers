@@ -13,7 +13,7 @@ class Lace extends LayerObject {
   }
   
   new_group(boundary){
-    let options = {minSize: 100, maxSize: 200, noiseScale: 0.01}
+    let options = {minSize: 200, maxSize: 400, noiseScale: 0.01}
     return new BlobGroup(100, boundary.center, boundary.radius, [boundary], 1, options)
   }
 
