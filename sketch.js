@@ -26,7 +26,7 @@ let t = 0;
 let current_state = STATE_INIT
 let current_layer = 0
 const NUM_FLOWER_LAYER = 2
-const NUM_BRAIN_LAYER = 1
+const NUM_BRAIN_LAYER = 3
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -58,7 +58,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(W/2, H/2);
   let radius = H*1.1
-  let max_time = random(500,1000);
+  let max_time = random(300,500);
   let num_bounds = 1;
   let num_groups = 1
   
@@ -93,7 +93,6 @@ function create_brain_layer(){
   }
 
   let lines_options = {
-    center: center,
     radius: radius,
     distinct: true,
     hide_bg: false, 
@@ -108,10 +107,12 @@ function create_brain_layer(){
   
   for(let i = 0; i < 100; i++){
     let options = lines_options
+    options.center = createVector(random(W*0.4, W*0.6), random(H*0.4, H*0.6))
 
     let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
     brain.initialize()
     if(brain.state === STATE_UPDATE) {
+      console.log("ADDING BRAIN")
       layer.objects.push(brain);
       count++;
       if(count > NUM_BRAIN_LAYER) { break; }
@@ -238,15 +239,14 @@ function create_circular_layer(){
   let num_groups = 1;
   let radius = 150;
   
-
+  let available_styles = ["ellipse_shadow", "ellipse_shadow", "large_ellipse", "large_ellipse", "circle", "circle","circle","blob"]
   let max_time = 200;
 
-  for(let i = 0; i < 100; i++){
+  for(let i = 0; i < 120; i++){
     let x = random(W*0.2, W*0.8)
     let y = random(H*0.2, H*0.8)
     let center =  createVector(x, y);
-    let style = random(["ellipse_shadow", "large_ellipse", "circle"]) 
-    
+    let style = random(available_styles) 
     let fill_bg = random([true, false])
     if(style == "ellipse_shadow") { fill_bg = false; }
 
@@ -262,7 +262,9 @@ function create_circular_layer(){
     c.initialize();
     if(c.state === STATE_UPDATE) {
       layer.objects.push(c);
-      if(layer.objects.length > 20) { break; }
+      available_styles.splice(available_styles.indexOf(style), 1)
+      console.log(available_styles, style)
+      if(layer.objects.length > 20 || available_styles.length < 1) { break; }
     }
   }
   

@@ -174,6 +174,14 @@ class SpaceFillingAgent extends Agent {
         this.separation_radius = this.size * 1.5
         this.separation_radius = this.size * 1
         break;
+      case "blob":
+        this.size = random(12, 25);
+        this.width = this.size;
+        this.height = this.size;
+        this.points = this.group.create_vertices(this.size);
+        this.separation_radius = this.size * 1
+        this.number_to_spawn = 12
+        break;
       default:
         this.size = 15;
         this.width = this.size;
@@ -311,6 +319,29 @@ class SpaceFillingAgent extends Agent {
           line(0, -a, b, -a);
           line(0,  0, b,  0);
           line(0,  a, b,  a);
+          break;
+        case "blob":
+          let n = this.points.length;
+
+          beginShape();
+            let first = this.points[0];
+            let last = this.points[n - 1];
+            let midX = (last.x + first.x) / 2;
+            let midY = (last.y + first.y) / 2;
+
+            curveVertex(midX, midY);
+
+            for (let i = 0; i < n; i++) {
+              let pt = this.points[i];
+              curveVertex(pt.x, pt.y);
+            }
+
+            curveVertex(midX, midY);
+            
+          endShape(CLOSE);
+          break;
+        default:
+          ellipse(0, 0, this.width, this.height);
           break;
       }
     pop();
