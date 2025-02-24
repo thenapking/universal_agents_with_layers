@@ -105,6 +105,7 @@ class DifferentialGroup extends Group {
     push();
       stroke(128, 128, 128);
       strokeWeight(size);
+      noFill();
       beginShape();
         for (let agent of this.agents) {
           vertex(agent.position.x, agent.position.y);
@@ -116,7 +117,7 @@ class DifferentialGroup extends Group {
   draw_with_dots(size = 7) {
     push();
       noStroke();
-      fill(palette.pen);
+      // fill(palette.pen);
       for (let agent of this.agents) {
         circle(agent.position.x, agent.position.y, size);
       }
@@ -134,7 +135,7 @@ class DifferentialGroup extends Group {
 
       push();
         noStroke();
-        fill(palette.pen);
+        // fill(palette.pen);
         translate(agent.position.x, agent.position.y);
         rotate(angle);
         ellipse(0, 0, size/2, size);
@@ -146,6 +147,7 @@ class DifferentialGroup extends Group {
     this.draw_line(size*2);
 
     push();
+      noFill();
       stroke(palette.pen);
       strokeWeight(2);
       for (let i = 0; i < this.agents.length - 1; i++) {

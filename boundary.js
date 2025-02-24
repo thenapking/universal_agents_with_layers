@@ -158,8 +158,6 @@ class Boundary {
     }
 
     draw(){
-      stroke(palette.pen)
-
       switch(this.type){
         case "circle":
           ellipse(this.center.x, this.center.y, this.radius*2, this.radius*2)

@@ -1,20 +1,19 @@
 class SpaceFillingGroup extends Group {
   constructor(n, center, radius, boundaries, boundary_factor, options = {}){
     super(n, center, radius, boundaries, boundary_factor);
+    this.style = options.style;
     this.minSize = options.minSize;
     this.maxSize = options.maxSize;
     this.repellers = options.repellers;
     this.potential_agents = []; 
     this.grid = new Grid();
     this.spawning = true;
-    // this.style = random(["ellipse", "rectangle", "line"])
-    this.style = "ellipse_shadow"
   }
 
   initialize() {
     for (let i = 0; i < this.n; i++) {
-      let x = random(this.center.x*0.2, this.center.x*1.8)
-      let y = random(this.center.y*0.2, this.center.y*1.8)
+      let x = random(this.center.x*0.9, this.center.x*1.1)
+      let y = random(this.center.y*0.9, this.center.y*1.1)
       this.agents.push(new SpaceFillingAgent(createVector(x, y), this));
     }
   }
@@ -34,7 +33,7 @@ class SpaceFillingGroup extends Group {
     let active = 0;
 
     for (let agent of this.agents) {
-      this.enforce_boundaries(agent);
+      this.enforce_boundaries(agent, 0.05);
       if (agent.active && !agent.finished) {
         let sep = agent.separation(this.agents);
         let aliDelta = agent.align(this.grid);
@@ -85,7 +84,7 @@ class SpaceFillingGroup extends Group {
   remove(agent){
     let index = this.agents.indexOf(agent);
     if (index !== -1) {
-      this.agents.splice(index, 1);
+      this.agents = this.agents.splice(index, 1);
     }
   }
 
@@ -102,27 +101,86 @@ class SpaceFillingAgent extends Agent {
     super(position, group);
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
-    this.size = 15;
-    this.style = this.group.style
+    // this.size = 15;
+    this.style = this.group.style;
     // this.width = this.style == "line" ? this.size / 3 : this.size / 2;
     // this.height = this.style == "line" ? this.size / 3 : this.size;
-    this.width = this.size;
-    this.height = this.size*0.35;
+    // this.width = this.size;
+    // this.height = this.size*0.35;
     this.spawned = false;
     this.number_to_spawn = n;
     this.active = true;
     this.angle = random(-PI, PI);
-    this.alignmentFactor = 0.03;
+    this.alignmentFactor = .03;
     this.inactive_ticks = 0;
     this.finished = false;  
+
+    this.set_options();
+    this.alignment_radius = this.size * 2
     this.repeller_radius = this.size * 1.2;
-    this.separation_radius = this.size * 1
-    this.alignment_radius = this.size * 1
+
+
   }
 
   applyAlignment(delta) {
     this.angle += delta;
     this.angle = constrain(this.angle, -PI, PI);
+  }
+
+  set_options() {
+    switch(this.style){
+      case "ellipse":
+        this.size = random(this.group.minSize, this.group.maxSize);
+        this.width = this.size;
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+
+        break;
+      case "circle":
+        this.size = random(this.group.minSize, this.group.maxSize);
+        this.width = this.size;
+        this.height = this.size;
+        this.separation_radius = this.size * 0.5
+        this.number_to_spawn = 24
+        break;
+      case "rectangle":
+        this.size = random(this.group.minSize, this.group.maxSize);
+        this.width = this.size;   
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+        break;
+      case "line":
+        this.size = random(this.group.minSize, this.group.maxSize);
+        this.width = this.size;
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+        break;
+      case "multiline":
+        this.size = random(this.group.minSize, this.group.maxSize);
+        this.width = this.size;
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+        break;
+      case "ellipse_shadow":
+        this.size = 15
+        this.width = this.size;
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+        break;
+      case "large_ellipse": 
+        this.size = 20
+        this.width = this.size;
+        this.height = this.size*0.45;
+        this.separation_radius = this.size * 1.5
+        this.separation_radius = this.size * 1
+        break;
+      default:
+        this.size = 15;
+        this.width = this.size;
+        this.height = this.size*0.35;
+        this.separation_radius = this.size * 1
+        break;
+    } 
   }
   
   align(grid) {
@@ -226,8 +284,12 @@ class SpaceFillingAgent extends Agent {
       translate(this.position.x, this.position.y);
       rotate(this.angle);
       stroke(palette.pen);  
+
       switch(this.style){
-        case "ellipse":
+        case "ellipse", "circle":
+          ellipse(0, 0, this.width, this.height);
+          break;
+        case "large_ellipse":
           ellipse(0, 0, this.width, this.height);
           break;
         case "rectangle":

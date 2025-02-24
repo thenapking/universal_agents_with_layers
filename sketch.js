@@ -24,7 +24,7 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 1
+let current_layer = 0
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 1
 
@@ -96,7 +96,7 @@ function create_brain_layer(){
     center: center,
     radius: radius,
     distinct: true,
-    hide_bg: true, 
+    hide_bg: false, 
     desiredDistance: 12,
     minSegmentLength: 5, 
     maxSegmentLength: 10,
@@ -229,6 +229,46 @@ function create_hole_layer(){
   layers.push(layer)
 }
 
+function create_circular_layer(){
+  let order = 0
+  let depth = 0
+  let layer = new Layer(order, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = 150;
+  
+
+  let max_time = 200;
+
+  for(let i = 0; i < 100; i++){
+    let x = random(W*0.2, W*0.8)
+    let y = random(H*0.2, H*0.8)
+    let center =  createVector(x, y);
+    let style = random(["ellipse_shadow", "large_ellipse", "circle"]) 
+    
+    let fill_bg = random([true, false])
+    if(style == "ellipse_shadow") { fill_bg = false; }
+
+    let options = {center: center, 
+      hide_bg: true,
+      fill_bg: fill_bg,
+      distinct: false,
+      style: style
+    }
+    
+    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      if(layer.objects.length > 20) { break; }
+    }
+  }
+  
+  layers.push(layer)
+}
+
 function create_space_filling_layer(){
   let order = 3
   let depth = 3
@@ -332,6 +372,7 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
+      create_circular_layer()
       // create_flower_layer()
       break;
     case 1:
@@ -339,7 +380,7 @@ function create_next_layer(){
       break;
     case 2:
       // create_slime_layer()
-      create_hole_layer()
+      // create_hole_layer()
       break; 
     case 3:
       // create_space_filling_layer()
@@ -348,7 +389,7 @@ function create_next_layer(){
 }
 
 function draw_layers(){
-  for(let current_depth = 4; current_depth >= 0; current_depth--){
+  for(let current_depth = 0; current_depth < 4; current_depth++){
     for(let layer of layers){
       if(layer.depth == current_depth ){
         layer.draw();
