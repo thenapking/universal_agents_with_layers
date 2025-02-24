@@ -237,24 +237,48 @@ function create_circular_layer(){
 
   let num_bounds = 1;
   let num_groups = 1;
-  let radius = 150;
   
-  let available_styles = ["ellipse_shadow", "ellipse_shadow", "large_ellipse", "large_ellipse", "circle", "circle","circle","blob"]
-  let max_time = 200;
+  let available_styles = ["packed_circle_filled_pen", "packed_circle_filled_bg",
+  "packed_circle_filled_pen", "packed_circle_filled_bg", "packed_circle", 
+  "packed_circle", "packed_circle", "packed_circle", "packed_circle", 
+  "packed_circle_pip_pen", "packed_circle_pip_pen", "packed_circle_pip_bg",  "packed_circle_pip_bg", 
+  "ellipse_shadow", "large_ellipse", "circle"]
+  
+  let max_time = 500;
+  let centers = []
 
   for(let i = 0; i < 120; i++){
-    let x = random(W*0.2, W*0.8)
-    let y = random(H*0.2, H*0.8)
+    let radius = 150;
+    let x = random(W*0.25, W*0.75)
+    let y = random(H*0.15, H*0.85)
     let center =  createVector(x, y);
+    let too_close = false
+
+    for(let c of centers){
+      if(center.dist(c) < 180) { 
+        console.log("TOO CLOSE")
+        too_close = true;
+
+      }
+    }
+
+    if(too_close) { continue; }
     let style = random(available_styles) 
     let fill_bg = random([true, false])
-    if(style == "ellipse_shadow") { fill_bg = false; }
+    let exceed_bounds = random([true, false])
+    if(style == "packed_circle_filled_pen") { fill_bg = false; }
+    if(style == "packed_circle_filled_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "packed_circle_pip_pen") { fill_bg = false; exceed_bounds = true}
+    if(style == "packed_circle_pip_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "circle") { fill_bg = true; exceed_bounds = true }
+    if(style == "ellipse_shadow") { fill_bg = false; exceed_bounds = false;}
 
     let options = {center: center, 
       hide_bg: true,
       fill_bg: fill_bg,
       distinct: false,
-      style: style
+      style: style,
+      exceed_bounds: exceed_bounds
     }
     
     let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
@@ -264,6 +288,7 @@ function create_circular_layer(){
       layer.objects.push(c);
       available_styles.splice(available_styles.indexOf(style), 1)
       console.log(available_styles, style)
+      centers.push(center)
       if(layer.objects.length > 20 || available_styles.length < 1) { break; }
     }
   }

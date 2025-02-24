@@ -4,12 +4,13 @@ class CircularGroup extends Group {
     this.noiseScale = options.noiseScale;
     this.minSize = options.minSize;
     this.maxSize = options.maxSize;
+    this.style = options.style;
   }
 
   initialize() {
     for (let i = 0; i < this.n; i++) {
-      let x = random(this.center.x*0.2, this.center.x*1.8)
-      let y = random(this.center.y*0.2, this.center.y*1.8)
+      let x = random(this.center.x*0.8, this.center.x*1.2)
+      let y = random(this.center.y*0.8, this.center.y*1.2)
       this.agents.push(new CircularAgent(createVector(x, y), this));
     }
   }
@@ -17,10 +18,10 @@ class CircularGroup extends Group {
   update(){
     let active = 0;
     for (let agent of this.agents) {
-      this.enforce_boundaries(agent);
+      this.enforce_boundaries(agent, 0.01);
       let sep = agent.separation(this.agents);
       agent.set_size();
-      agent.applyForce(sep);
+      agent.applyForce(sep, 2);
       agent.update();
       if (agent.active) active++;
     }
@@ -39,10 +40,35 @@ class CircularAgent extends Agent {
   set_size() {
     let nz = noise(this.position.x * this.noiseScale, this.position.y * this.noiseScale);
     this.size = lerp(this.minSize, this.maxSize, nz);
+    let sz_mult = this.group.style.substring(0,17) == "packed_circle_pip" ? 1.5 : 1.01;
+    this.separation_radius = this.size * sz_mult;
+    
   }
 
   draw() {
-    ellipse(this.position.x, this.position.y, this.size, this.size);
+    push();
+
+    switch(this.group.style) {
+        case "packed_circle_filled_pen":
+          fill(palette.pen);
+          noStroke();
+          break;
+        case "packed_circle_filled_bg":
+          fill(palette.bg);
+          noStroke();
+          break;
+        case "packed_circle_pip_pen":
+          fill(palette.pen);
+          noStroke();
+          break;
+        case "packed_circle_pip_bg":
+          fill(palette.bg);
+          noStroke();
+          break;
+      }
+      
+      ellipse(this.position.x, this.position.y, this.size, this.size);
+    pop();
   }
 }
 
