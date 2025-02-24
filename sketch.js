@@ -24,9 +24,9 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 1
+let current_layer = 0
 const NUM_FLOWER_LAYER = 2
-const NUM_BRAIN_LAYER = 1
+const NUM_BRAIN_LAYER = 3
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -58,7 +58,7 @@ function create_brain_layer(){
   let count = 0
   let center = createVector(W/2, H/2);
   let radius = H*1.1
-  let max_time = 2000;
+  let max_time = random(300,500);
   let num_bounds = 1;
   let num_groups = 1
   
@@ -93,10 +93,9 @@ function create_brain_layer(){
   }
 
   let lines_options = {
-    center: center,
     radius: radius,
     distinct: true,
-    hide_bg: true, 
+    hide_bg: false, 
     desiredDistance: 12,
     minSegmentLength: 5, 
     maxSegmentLength: 10,
@@ -108,10 +107,12 @@ function create_brain_layer(){
   
   for(let i = 0; i < 100; i++){
     let options = lines_options
+    options.center = createVector(random(W*0.4, W*0.6), random(H*0.4, H*0.6))
 
     let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
     brain.initialize()
     if(brain.state === STATE_UPDATE) {
+      console.log("ADDING BRAIN")
       layer.objects.push(brain);
       count++;
       if(count > NUM_BRAIN_LAYER) { break; }
@@ -229,6 +230,72 @@ function create_hole_layer(){
   layers.push(layer)
 }
 
+function create_circular_layer(){
+  let order = 0
+  let depth = 0
+  let layer = new Layer(order, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  
+  let available_styles = ["packed_circle_filled_pen", "packed_circle_filled_bg",
+  "packed_circle_filled_pen", "packed_circle_filled_bg", "packed_circle", 
+  "packed_circle", "packed_circle", "packed_circle", "packed_circle", 
+  "packed_circle_pip_pen", "packed_circle_pip_pen", "packed_circle_pip_bg",  "packed_circle_pip_bg", 
+  "ellipse_shadow", "large_ellipse", "circle"]
+  
+  let max_time = 500;
+  let centers = []
+
+  for(let i = 0; i < 120; i++){
+    let radius = 150;
+    let x = random(W*0.25, W*0.75)
+    let y = random(H*0.15, H*0.85)
+    let center =  createVector(x, y);
+    let too_close = false
+
+    for(let c of centers){
+      if(center.dist(c) < 180) { 
+        console.log("TOO CLOSE")
+        too_close = true;
+
+      }
+    }
+
+    if(too_close) { continue; }
+    let style = random(available_styles) 
+    let fill_bg = random([true, false])
+    let exceed_bounds = random([true, false])
+    if(style == "packed_circle_filled_pen") { fill_bg = false; }
+    if(style == "packed_circle_filled_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "packed_circle_pip_pen") { fill_bg = false; exceed_bounds = true}
+    if(style == "packed_circle_pip_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "circle") { fill_bg = true; exceed_bounds = true }
+    if(style == "ellipse_shadow") { fill_bg = false; exceed_bounds = false;}
+
+    let options = {center: center, 
+      hide_bg: true,
+      fill_bg: fill_bg,
+      distinct: false,
+      style: style,
+      exceed_bounds: exceed_bounds
+    }
+    
+    let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      available_styles.splice(available_styles.indexOf(style), 1)
+      console.log(available_styles, style)
+      centers.push(center)
+      if(layer.objects.length > 20 || available_styles.length < 1) { break; }
+    }
+  }
+  
+  layers.push(layer)
+}
+
 function create_space_filling_layer(){
   let order = 3
   let depth = 3
@@ -332,6 +399,7 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
+      create_circular_layer()
       // create_flower_layer()
       break;
     case 1:
@@ -339,7 +407,7 @@ function create_next_layer(){
       break;
     case 2:
       // create_slime_layer()
-      create_hole_layer()
+      // create_hole_layer()
       break; 
     case 3:
       // create_space_filling_layer()
@@ -348,7 +416,7 @@ function create_next_layer(){
 }
 
 function draw_layers(){
-  for(let current_depth = 4; current_depth >= 0; current_depth--){
+  for(let current_depth = 0; current_depth < 4; current_depth++){
     for(let layer of layers){
       if(layer.depth == current_depth ){
         layer.draw();

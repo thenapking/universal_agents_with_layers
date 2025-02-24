@@ -50,9 +50,10 @@ class LayerObject {
     this.repellers = repellers;
     this.active = true;
     this.max_time = max_time;
-    this.hide_bg = options.hide_bg
-    this.distinct = options.distinct
     this.options = options
+    this.hide_bg = options.hide_bg
+    this.fill_bg = options.fill_bg
+    this.distinct = options.distinct
   }
 
   initialize(){
@@ -129,21 +130,23 @@ class LayerObject {
   }
 
   draw(){
-    if(this.hide_bg){
+    if(this.hide_bg || this.fill_bg){
       push();
-        fill(palette.bg);
+        if(this.hide_bg) { fill(palette.bg) }
+        if(this.fill_bg) { fill(palette.pen) }
+
+        noStroke();
         for(let boundary of this.boundaries){
-            boundary.draw();
+          boundary.draw();
         }
+        
         noFill();
       pop()
     }
 
     for (let group of this.groups) {
       push();
-          // noFill();
-
-          group.draw();
+        group.draw();
       pop();
     }
   }
