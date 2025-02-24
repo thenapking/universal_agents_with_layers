@@ -23,6 +23,12 @@ class Layer {
     }
   }
 
+  finish(){
+    for(let layer_object of this.objects){
+        layer_object.finish();
+    }
+  }
+
   draw(){
     for(let layer_object of this.objects){
         layer_object.draw();
@@ -118,22 +124,27 @@ class LayerObject {
     }
   }
 
+  finish(){
+    // do nothing
+  }
+
   draw(){
     if(this.hide_bg){
-        push();
-            fill(palette.bg);
-            for(let boundary of this.boundaries){
-                boundary.draw();
-            }
-        pop()
+      push();
+        fill(palette.bg);
+        for(let boundary of this.boundaries){
+            boundary.draw();
+        }
+        noFill();
+      pop()
     }
 
     for (let group of this.groups) {
-        push();
-            noFill();
+      push();
+          // noFill();
 
-            group.draw();
-        pop();
+          group.draw();
+      pop();
     }
   }
 

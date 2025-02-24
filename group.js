@@ -7,6 +7,7 @@ class Group {
       this.boundaries = boundaries || [];
       this.boundary_factor = boundary_factor;
       this.active = true;
+      // this.separation_radius = 5000000000;
     }
     
     initialize() {
@@ -14,13 +15,13 @@ class Group {
         this.agents.push(new Agent(this.center.copy(), this));
       }
     }
-  
+    
     enforce_boundaries(agent){
       let force = createVector(0, 0);
       for(let boundary of this.boundaries){
         force.add(boundary.steer(agent));
       }
-      force.mult(this.boundary_factor);
+      force.mult(4); // Not working assignment
       agent.applyForce(force);
     }
 

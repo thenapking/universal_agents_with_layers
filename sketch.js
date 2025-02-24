@@ -24,9 +24,9 @@ let flower_layer, slime_mould_layer;
 let sm;
 let t = 0;
 let current_state = STATE_INIT
-let current_layer = 0
+let current_layer = 1
 const NUM_FLOWER_LAYER = 2
-const NUM_BRAIN_LAYER = 2
+const NUM_BRAIN_LAYER = 1
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -56,26 +56,58 @@ function create_brain_layer(){
   let depth = 1
   let layer = new Layer(order, depth)
   let count = 0
-  let center = createVector(random(width), random(height))
-  let radius = random(100, 200)
-  let max_time = 400;
+  let center = createVector(W/2, H/2);
+  let radius = H*1.1
+  let max_time = 2000;
   let num_bounds = 1;
   let num_groups = 1
   
+  let thicker_options = {
+    center: center,
+    radius: radius,
+    distinct: true,
+    hide_bg: true, 
+    desiredDistance: 50, // random([15, 20, 25]),
+    minSegmentLength: 3, 
+    maxSegmentLength: 10,
+    repulsionRadius: 70, 
+    attractionFactor: 0.8, 
+    alignmentFactor: 0.7, 
+    repulsionFactor: 1.5, 
+    stepSize: 10
+  }
+
+  let fatter_options = {
+    center: center,
+    radius: radius,
+    distinct: true,
+    hide_bg: true, 
+    desiredDistance: random(50,70), // random([15, 20, 25]),
+    minSegmentLength: 3, 
+    maxSegmentLength: 10,
+    repulsionRadius: random(55, 60),  // should be balanced with desiredDistance, should be more than 40
+    attractionFactor: 1.8, 
+    alignmentFactor: 0.62, // helps set spaciing between lines 
+    repulsionFactor: 1.5, 
+    stepSize: 1
+  }
+
+  let lines_options = {
+    center: center,
+    radius: radius,
+    distinct: true,
+    hide_bg: true, 
+    desiredDistance: 12,
+    minSegmentLength: 5, 
+    maxSegmentLength: 10,
+    repulsionRadius: 61,
+    alignmentFactor: 0.49, // helps set spaciing between lines 
+    repulsionFactor: .45, 
+    stepSize: 8.1
+  }
   
   for(let i = 0; i < 100; i++){
-    let options = {center: center,
-      distinct: true,
-      hide_bg: true, 
-      desiredDistance: random([20,30,40]),
-      minSegmentLength: 5, 
-      maxSegmentLength: 15,
-      repulsionRadius: 40, 
-      attractionFactor: 0.5, 
-      alignmentFactor: 0.02, 
-      repulsionFactor: 1.2, 
-      stepSize: 20
-    }
+    let options = lines_options
 
     let brain = new BrainCoral(layer, num_bounds, num_groups, radius, max_time + t, options)
     brain.initialize()
@@ -167,6 +199,36 @@ function create_slime_layer(){
   }
 }
 
+let bg
+let cg
+let bd
+let lc
+
+function create_hole_layer(){
+  let order = 0
+  let depth = 2
+  let layer = new Layer(order, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  let radius = W;
+  let center = createVector(W/2, H/2);
+  let max_time = 1000;
+
+  let options = {center: center, 
+    outer_radius: 350, 
+    distinct: true
+  }
+
+  lc = new Lace(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+  lc.initialize();
+  if(lc.state === STATE_UPDATE) {
+    layer.objects.push(lc);
+  }
+
+  layers.push(layer)
+}
+
 function create_space_filling_layer(){
   let order = 3
   let depth = 3
@@ -174,21 +236,37 @@ function create_space_filling_layer(){
 
   let num_bounds = 1;
   let num_groups = 1;
-  let radius = 300;
+  let radius = 500;
   
 
-  let outer_radius = 450;
-  let max_time = 200;
+  let outer_radius = 50;
+  let max_time = 1000;
 
   let center = createVector(W/2, H/2);
 
   let options = {center: center, 
     outer_radius: outer_radius, 
   }
+  
+  let boundaries = []
 
+  for(let b of lc.groups[0].agents) {
+    let points = []
+    for(let p of b.points){
+      let x = p.x + b.position.x
+      let y = p.y + b.position.y
+      points.push(createVector(x, y))
+    }
+    let boundary = new Boundary("blob", {mode: "exclude", points: points})
+    boundaries.push(boundary)
+  }
+
+  bd = boundaries
   let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
   c.initialize();
+  c.groups[0].boundaries = c.groups[0].boundaries.concat(boundaries)
+  cg = c.groups[0]
   if(c.state === STATE_UPDATE) {
     layer.objects.push(c);
 
@@ -203,11 +281,6 @@ function draw() {
   stroke(palette.pen);
   fill(palette.bg);
   strokeWeight(1.5);
-
-  // for(let a of attractors){
-  //   stroke(0)
-  //   a.draw();
-  // }
 
   update_state()
 
@@ -237,11 +310,19 @@ function update_state(){
       }
       break;
     case STATE_DONE:
+      for(let layer of layers){
+        if(layer.order == current_layer){
+          layer.finish();
+        }
+      }
+
       current_layer++;
-      create_next_layer();
+
       if(current_layer > 3) { 
         current_state = STATE_FINISHED; 
       } else {
+
+        create_next_layer();
         current_state = STATE_UPDATE;
       }
       break;
@@ -251,24 +332,25 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
-      create_flower_layer()
+      // create_flower_layer()
       break;
     case 1:
       create_brain_layer()
       break;
     case 2:
-      create_slime_layer()
+      // create_slime_layer()
+      create_hole_layer()
       break; 
     case 3:
-      create_space_filling_layer()
+      // create_space_filling_layer()
       break;
   }
 }
 
 function draw_layers(){
-  for(let current_depth = 3; current_depth >= 0; current_depth--){
+  for(let current_depth = 4; current_depth >= 0; current_depth--){
     for(let layer of layers){
-      if(layer.depth == current_depth && layer.order <= current_layer){
+      if(layer.depth == current_depth ){
         layer.draw();
       }
     }

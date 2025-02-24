@@ -225,6 +225,7 @@ class SpaceFillingAgent extends Agent {
     push();
       translate(this.position.x, this.position.y);
       rotate(this.angle);
+      stroke(palette.pen);  
       switch(this.style){
         case "ellipse":
           ellipse(0, 0, this.width, this.height);
