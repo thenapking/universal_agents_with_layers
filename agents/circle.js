@@ -55,6 +55,7 @@ class CircularAgent extends Agent {
           break;
         case "packed_circle_filled_bg":
           fill(palette.bg);
+          stroke(palette.pen);
           noStroke();
           break;
         case "packed_circle_pip_pen":
