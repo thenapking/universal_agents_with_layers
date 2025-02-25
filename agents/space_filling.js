@@ -171,8 +171,7 @@ class SpaceFillingAgent extends Agent {
         this.size = 20
         this.width = this.size;
         this.height = this.size*0.45;
-        this.separation_radius = this.size * 1.5
-        this.separation_radius = this.size * 1
+        this.separation_radius = this.size * 1.15
         break;
       case "blob":
         this.size = random(12, 25);
@@ -182,6 +181,12 @@ class SpaceFillingAgent extends Agent {
         this.separation_radius = this.size * 1
         this.number_to_spawn = 12
         break;
+      case "equal":
+        this.size = 10;
+        this.width = this.size * 2;
+        this.height = this.size * 2;
+        this.separation_radius = this.size 
+        this.alignmentFactor = 8
       default:
         this.size = 15;
         this.width = this.size;
@@ -339,6 +344,9 @@ class SpaceFillingAgent extends Agent {
             curveVertex(midX, midY);
             
           endShape(CLOSE);
+          break;
+        case "equal":
+          ellipse(0, 0, this.size, this.size);
           break;
         default:
           ellipse(0, 0, this.width, this.height);

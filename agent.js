@@ -70,6 +70,7 @@ class Agent {
     }
     if (count > 0) {
       steer.div(count);
+      steer.sub(this.position);
       steer.setMag(this.maxSpeed);
       steer.limit(this.maxForce);
       return steer;

@@ -241,8 +241,11 @@ function create_circular_layer(){
   let available_styles = ["packed_circle_filled_pen", "packed_circle_filled_bg",
   "packed_circle_filled_pen", "packed_circle_filled_bg", "packed_circle", 
   "packed_circle", "packed_circle", "packed_circle", "packed_circle", 
-  "packed_circle_pip_pen", "packed_circle_pip_pen", "packed_circle_pip_bg",  "packed_circle_pip_bg", 
-  "ellipse_shadow", "large_ellipse", "circle"]
+  "packed_circle_pip_pen", "packed_circle_pip_pen", 
+  "packed_circle_pip_bg",  "packed_circle_pip_bg", 
+  "packed_circle_pip_small",  "packed_circle_pip_small", 
+  "ellipse_shadow", "large_ellipse", "circle", 
+  "equal"]
   
   let max_time = 500;
   let centers = []
@@ -267,11 +270,15 @@ function create_circular_layer(){
     let fill_bg = random([true, false])
     let exceed_bounds = random([true, false])
     if(style == "packed_circle_filled_pen") { fill_bg = false; }
+    if(style == "packed_circle") { fill_bg = false; hide_bg = false; }
     if(style == "packed_circle_filled_bg") { fill_bg = true; exceed_bounds = false; }
-    if(style == "packed_circle_pip_pen") { fill_bg = false; exceed_bounds = true}
-    if(style == "packed_circle_pip_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "packed_circle_pip_pen") { fill_bg = false; hide_bg = false; exceed_bounds = true; radius = 200; max_time = 700 }
+    if(style == "packed_circle_pip_bg") { fill_bg = true; exceed_bounds = false; radius = 200; max_time = 700 }
+    if(style == "packed_circle_pip_small") { fill_bg = false; exceed_bounds = true; radius = 200; max_time = 700 }
     if(style == "circle") { fill_bg = true; exceed_bounds = true }
     if(style == "ellipse_shadow") { fill_bg = false; exceed_bounds = false;}
+    if(style == "equal") { fill_bg = false; exceed_bounds = false; }
+    if(style == "egg") { fill_bg = false; exceed_bounds = true; max_time = 100; radius = 120; }
 
     let options = {center: center, 
       hide_bg: true,

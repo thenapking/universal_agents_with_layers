@@ -66,6 +66,10 @@ class CircularAgent extends Agent {
           fill(palette.bg);
           noStroke();
           break;
+        case "packed_circle_pip_small":
+          fill(palette.pen);
+          noStroke();
+          break;
       }
       
       ellipse(this.position.x, this.position.y, this.size, this.size);
