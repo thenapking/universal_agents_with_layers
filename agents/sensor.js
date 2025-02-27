@@ -30,6 +30,7 @@ class SensorGroup extends Group {
   }
 
   update(){
+    this.new_grid();
     let active = 0;
     for (let agent of this.agents) {
       this.enforce_boundaries(agent);
@@ -42,7 +43,7 @@ class SensorGroup extends Group {
         agent.applyForce(forage);
         let repel = agent.forage(this.repellers, -2);
         agent.applyForce(repel);
-        let sep = agent.separation(this.agents);
+        let sep = agent.separation(this.grid);
         agent.applyForce(sep, this.straightness);
 
         agent.remove_attractors(this.attractors);

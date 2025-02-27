@@ -16,10 +16,12 @@ class CircularGroup extends Group {
   }
 
   update(){
+    this.new_grid();
+
     let active = 0;
     for (let agent of this.agents) {
       this.enforce_boundaries(agent, 0.01);
-      let sep = agent.separation(this.agents);
+      let sep = agent.separation(this.grid);
       agent.set_size();
       agent.applyForce(sep, 2);
       agent.update();
@@ -47,29 +49,12 @@ class CircularAgent extends Agent {
 
   draw() {
     push();
+      fill(palette.pen);
+      noStroke();
 
-    switch(this.group.style) {
-        case "packed_circle_filled_pen":
-          fill(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_filled_bg":
-          fill(palette.bg);
-          stroke(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_pip_pen":
-          fill(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_pip_bg":
-          fill(palette.bg);
-          noStroke();
-          break;
-        case "packed_circle_pip_small":
-          fill(palette.pen);
-          noStroke();
-          break;
+      if(this.group.style == "packed_circle_filled_bg") {
+        fill(palette.bg);
+        stroke(palette.pen);
       }
       
       ellipse(this.position.x, this.position.y, this.size, this.size);

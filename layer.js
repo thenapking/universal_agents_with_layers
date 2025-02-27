@@ -5,7 +5,7 @@ const STATE_SPACE_FILL = 3;
 const STATE_FINISHED = 4;
 
 class Layer {
-  constructor(depth = 0, order = 0, objects = [], active = true, ) {
+  constructor(order = 0, depth = 0, objects = [], active = true, ) {
     this.depth = depth;
     this.order = order;
     this.objects = objects;

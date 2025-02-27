@@ -10,10 +10,12 @@ class BlobGroup extends CircularGroup {
   }
 
   update(){
+    this.new_grid();
     let active = 0;
+
     for (let agent of this.agents) {
       this.enforce_boundaries(agent);
-      let sep = agent.separation(this.agents, 2);
+      let sep = agent.separation(this.grid, 2);
       agent.set_size();
       agent.applyForce(sep);
       agent.update();

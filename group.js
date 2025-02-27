@@ -7,6 +7,7 @@ class Group {
     this.boundaries = boundaries || [];
     this.boundary_factor = boundary_factor;
     this.active = true;
+    this.grid = new Grid();
   }
   
   initialize() {
@@ -21,6 +22,32 @@ class Group {
       force.add(boundary.steer(agent));
     }
     agent.applyForce(force, strength);
+  }
+  
+  new_grid(){
+    let grid = new Grid();
+    for (let agent of this.agents) {
+      grid.add(agent);
+    }
+    this.grid = grid;
+    return grid;
+  }
+
+  add_to_grid(grid, new_agent){
+    try {
+      grid.add(new_agent);
+    } catch (error) {
+      this.remove(new_agent);
+      return false
+    }
+    return true
+  }
+
+  remove(agent){
+    let index = this.agents.indexOf(agent);
+    if (index !== -1) {
+      this.agents = this.agents.splice(index, 1);
+    }
   }
 
   draw(){
