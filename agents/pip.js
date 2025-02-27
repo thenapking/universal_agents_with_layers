@@ -6,6 +6,24 @@ class PipGroup extends CircularGroup {
       this.agents.push(new PipAgent(createVector(x, y), this));
     }
   }
+
+  update(){
+    this.new_grid();
+
+    let active = 0;
+
+    for (let agent of this.agents) {
+      this.enforce_boundaries(agent, 0.01);
+      let sep = agent.separation(this.grid);
+      agent.set_size();
+      agent.applyForce(sep, 2);
+      agent.update();
+      if (agent.active) active++;
+    }
+
+    return active;
+  }
+  
 }
 
 class PipAgent extends CircularAgent {
@@ -14,6 +32,8 @@ class PipAgent extends CircularAgent {
     this.size = lerp(this.minSize, this.maxSize, nz);
     this.separation_radius = this.size * 1.5;
   }
+
+  
 
   draw() {
     push();

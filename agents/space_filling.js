@@ -18,24 +18,23 @@ class SpaceFillingGroup extends Group {
     }
   }
 
+  // TODO refactor to use new grid
   spawn_agents(){
     if(!this.spawning) { return; }
-    let new_grid = new Grid();
   
     for (let agent of this.agents) {
       agent.spawn();
-      this.add_to_grid(new_grid, agent);
     }  
-    this.grid = new_grid;
   }
 
   update(){
+    this.new_grid();
     let active = 0;
 
     for (let agent of this.agents) {
       this.enforce_boundaries(agent, 0.05);
       if (agent.active && !agent.finished) {
-        let sep = agent.separation(this.agents);
+        let sep = agent.separation(this.grid);
         let aliDelta = agent.align(this.grid);
         agent.applyForce(sep, 9);
         agent.applyAlignment(aliDelta);
@@ -69,23 +68,6 @@ class SpaceFillingGroup extends Group {
     }
 
     this.spawning = counter > 0
-  }
-
-  add_to_grid(grid, new_agent){
-    try {
-      grid.add(new_agent);
-    } catch (error) {
-      this.remove(new_agent);
-      return false
-    }
-    return true
-  }
-
-  remove(agent){
-    let index = this.agents.indexOf(agent);
-    if (index !== -1) {
-      this.agents = this.agents.splice(index, 1);
-    }
   }
 
   check_boundaries(agent){

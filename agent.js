@@ -16,6 +16,7 @@ class Agent {
     this.acc.add(force);
   }
   
+  
   update() {
     this.vel.add(this.acc);
     this.vel.limit(this.maxSpeed);
@@ -28,10 +29,15 @@ class Agent {
     }
   }
   
-  separation(agents) {
+  separation(grid) {
     let steer = createVector(0, 0);
     let count = 0;
-    for (let other of agents) {
+
+    let col = Math.floor(this.position.x / CELL_SIZE);
+    let row = Math.floor(this.position.y / CELL_SIZE);
+    
+    let neighbors = grid.getNeighbours(col, row);
+    for (let other of neighbors) {
       if (other !== this) {
         let d = p5.Vector.dist(this.position, other.position);
         if (d < this.separation_radius) { //THIS HAS BEEN CHANGED

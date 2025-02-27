@@ -16,10 +16,12 @@ class CircularGroup extends Group {
   }
 
   update(){
+    this.new_grid();
+
     let active = 0;
     for (let agent of this.agents) {
       this.enforce_boundaries(agent, 0.01);
-      let sep = agent.separation(this.agents);
+      let sep = agent.separation(this.grid);
       agent.set_size();
       agent.applyForce(sep, 2);
       agent.update();

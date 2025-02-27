@@ -9,14 +9,15 @@ class EggGroup extends CircularGroup {
   }
 
   update(){
+    this.new_grid();
     let active = 0;
 
     for (let agent of this.agents) {
       this.enforce_boundaries(agent, 0.001);
-      let sep = agent.separation(this.agents);
+      let sep = agent.separation(this.grid);
       let coh = agent.cohesion(this.agents);
-      agent.applyForce(coh, 0.05);
 
+      agent.applyForce(coh, 0.05);
       agent.applyForce(sep, 0.3);
       agent.update();
       if (agent.active) active++;
