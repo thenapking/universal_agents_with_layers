@@ -27,6 +27,7 @@ let current_state = STATE_INIT
 let current_layer = 0
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 3
+const NUM_PIP_LAYER = 1
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -52,9 +53,8 @@ function setup() {
 }
 
 function create_brain_layer(){
-  let order = 1
   let depth = 1
-  let layer = new Layer(order, depth)
+  let layer = new Layer(current_layer, depth)
   let count = 0
   let center = createVector(W/2, H/2);
   let radius = H*1.1
@@ -122,9 +122,8 @@ function create_brain_layer(){
 }
 
 function create_flower_layer(){
-  let order = 0
   let depth = 0
-  let layer = new Layer(depth, order)
+  let layer = new Layer(current_layer, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -165,9 +164,8 @@ function create_flower_layer(){
 }
 
 function create_slime_layer(){
-  let order = 2
   let depth = 2
-  let layer = new Layer(order, depth)
+  let layer = new Layer(current_layer, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -206,9 +204,8 @@ let bd
 let lc
 
 function create_hole_layer(){
-  let order = 0
   let depth = 2
-  let layer = new Layer(order, depth)
+  let layer = new Layer(current_layer, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -231,9 +228,8 @@ function create_hole_layer(){
 }
 
 function create_circular_layer(){
-  let order = 0
-  let depth = 0
-  let layer = new Layer(order, depth)
+  let depth = 3
+  let layer = new Layer(current_layer, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -241,9 +237,6 @@ function create_circular_layer(){
   let available_styles = ["packed_circle_filled_pen", "packed_circle_filled_bg",
   "packed_circle_filled_pen", "packed_circle_filled_bg", "packed_circle", 
   "packed_circle", "packed_circle", "packed_circle", "packed_circle", 
-  "packed_circle_pip_pen", "packed_circle_pip_pen", 
-  "packed_circle_pip_bg",  "packed_circle_pip_bg", 
-  "packed_circle_pip_small",  "packed_circle_pip_small", 
   "ellipse_shadow", "large_ellipse", "circle", 
   "equal"]
   
@@ -255,26 +248,13 @@ function create_circular_layer(){
     let x = random(W*0.25, W*0.75)
     let y = random(H*0.15, H*0.85)
     let center =  createVector(x, y);
-    let too_close = false
 
-    for(let c of centers){
-      if(center.dist(c) < 180) { 
-        console.log("TOO CLOSE")
-        too_close = true;
-
-      }
-    }
-
-    if(too_close) { continue; }
     let style = random(available_styles) 
     let fill_bg = random([true, false])
     let exceed_bounds = random([true, false])
     if(style == "packed_circle_filled_pen") { fill_bg = false; }
     if(style == "packed_circle") { fill_bg = false; hide_bg = false; }
     if(style == "packed_circle_filled_bg") { fill_bg = true; exceed_bounds = false; }
-    if(style == "packed_circle_pip_pen") { fill_bg = false; hide_bg = false; exceed_bounds = true; radius = 200; max_time = 700 }
-    if(style == "packed_circle_pip_bg") { fill_bg = true; exceed_bounds = false; radius = 200; max_time = 700 }
-    if(style == "packed_circle_pip_small") { fill_bg = false; exceed_bounds = true; radius = 200; max_time = 700 }
     if(style == "circle") { fill_bg = true; exceed_bounds = true }
     if(style == "ellipse_shadow") { fill_bg = false; exceed_bounds = false;}
     if(style == "equal") { fill_bg = false; exceed_bounds = false; }
@@ -287,6 +267,9 @@ function create_circular_layer(){
       style: style,
       exceed_bounds: exceed_bounds
     }
+
+    let too_close = check_proximity(center, centers)
+    if(too_close) { continue; }
     
     let c = new SpaceFilling(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
 
@@ -303,10 +286,62 @@ function create_circular_layer(){
   layers.push(layer)
 }
 
+function create_pip_layer(){
+  let depth = 0
+  let layer = new Layer(current_layer, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  
+  let available_styles = ["pen", "pen", "bg",  "bg", "small",  "small"]
+  
+  let max_time = 300;
+  let centers = []
+
+  for(let i = 0; i < 120; i++){
+    let radius = 200;
+    let x = random(W*0.25, W*0.75)
+    let y = random(H*0.33, H*0.66)
+    let center =  createVector(x, y);
+
+    let style = random(available_styles) 
+    let fill_bg = random([true, false])
+    let exceed_bounds = random([true, false])
+
+    if(style == "pen") { fill_bg = false; hide_bg = false; exceed_bounds = true;  }
+    if(style == "bg") { fill_bg = true; exceed_bounds = false;  }
+    if(style == "small") { fill_bg = false; exceed_bounds = true;  }
+
+    let options = {center: center, 
+      hide_bg: true,
+      fill_bg: fill_bg,
+      distinct: false,
+      style: style,
+      exceed_bounds: exceed_bounds
+    }
+
+    let too_close = check_proximity(center, centers)
+    if(too_close) { continue; }
+
+ 
+    let c = new Pips(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      available_styles.splice(available_styles.indexOf(style), 1)
+      console.log(available_styles, style)
+      centers.push(center)
+      if(layer.objects.length > NUM_PIP_LAYER || available_styles.length < 1) { break; }
+    }
+  }
+  
+  layers.push(layer)
+}
+
 function create_space_filling_layer(){
-  let order = 3
   let depth = 3
-  let layer = new Layer(order, depth)
+  let layer = new Layer(current_layer, depth)
 
   let num_bounds = 1;
   let num_groups = 1;
@@ -348,6 +383,19 @@ function create_space_filling_layer(){
 
  
   layers.push(layer)
+}
+
+function check_proximity(center, centers, d = 180){
+  let too_close = false
+
+  for(let c of centers){
+    if(c.dist(center) < d) { 
+      console.log("TOO CLOSE")
+      too_close = true;
+    }
+  }
+
+  return too_close
 }
 
 function draw() {
@@ -406,13 +454,20 @@ function update_state(){
 function create_next_layer(){
   switch(current_layer){
     case 0:
-      create_circular_layer()
+      create_pip_layer()
+
+
       // create_flower_layer()
       break;
     case 1:
-      create_brain_layer()
+      create_circular_layer()
+
+      // create_pip_layer()
+
       break;
     case 2:
+      // create_brain_layer()
+
       // create_slime_layer()
       // create_hole_layer()
       break; 
