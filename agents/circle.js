@@ -49,29 +49,12 @@ class CircularAgent extends Agent {
 
   draw() {
     push();
+      fill(palette.pen);
+      noStroke();
 
-    switch(this.group.style) {
-        case "packed_circle_filled_pen":
-          fill(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_filled_bg":
-          fill(palette.bg);
-          stroke(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_pip_pen":
-          fill(palette.pen);
-          noStroke();
-          break;
-        case "packed_circle_pip_bg":
-          fill(palette.bg);
-          noStroke();
-          break;
-        case "packed_circle_pip_small":
-          fill(palette.pen);
-          noStroke();
-          break;
+      if(this.group.style == "packed_circle_filled_bg") {
+        fill(palette.bg);
+        stroke(palette.pen);
       }
       
       ellipse(this.position.x, this.position.y, this.size, this.size);

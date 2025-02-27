@@ -18,7 +18,6 @@ class SpaceFillingGroup extends Group {
     }
   }
 
-  // TODO refactor to use new grid
   spawn_agents(){
     if(!this.spawning) { return; }
   

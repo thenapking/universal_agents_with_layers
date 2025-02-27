@@ -53,7 +53,7 @@ function setup() {
 }
 
 function create_brain_layer(){
-  let depth = 1
+  let depth = 3
   let layer = new Layer(current_layer, depth)
   let count = 0
   let center = createVector(W/2, H/2);
@@ -440,7 +440,7 @@ function update_state(){
 
       current_layer++;
 
-      if(current_layer > 3) { 
+      if(current_layer > MAX_LAYERS) { 
         current_state = STATE_FINISHED; 
       } else {
 
@@ -451,28 +451,27 @@ function update_state(){
   }
 }
 
+const MAX_LAYERS = 5
+
 function create_next_layer(){
   switch(current_layer){
     case 0:
       create_pip_layer()
-
-
-      // create_flower_layer()
       break;
     case 1:
-      create_circular_layer()
-
-      // create_pip_layer()
-
+      create_slime_layer()
       break;
     case 2:
-      // create_brain_layer()
-
-      // create_slime_layer()
-      // create_hole_layer()
-      break; 
+      create_pip_layer()
+      break;
     case 3:
-      // create_space_filling_layer()
+      create_slime_layer()
+      break;
+    case 4:
+      create_circular_layer()
+      break; 
+    case 5:
+      create_brain_layer()
       break;
   }
 }
