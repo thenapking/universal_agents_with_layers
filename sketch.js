@@ -28,6 +28,8 @@ let current_layer = 0
 const NUM_FLOWER_LAYER = 2
 const NUM_BRAIN_LAYER = 3
 const NUM_PIP_LAYER = 1
+const NUM_CIRCULAR_LAYER = 3
+const NUM_PACKED_LAYER = 3
 
 function setup() {
   let random_seed = Math.floor(random(1000000));
@@ -234,11 +236,9 @@ function create_circular_layer(){
   let num_bounds = 1;
   let num_groups = 1;
   
-  let available_styles = ["packed_circle_filled_pen", "packed_circle_filled_bg",
-  "packed_circle_filled_pen", "packed_circle_filled_bg", "packed_circle", 
-  "packed_circle", "packed_circle", "packed_circle", "packed_circle", 
-  "ellipse_shadow", "large_ellipse", "circle", 
-  "equal"]
+  let available_styles = ["filled_pen", "filled_bg",
+  "filled_pen", "filled_bg", "packed_circle", 
+  "packed_circle", "packed_circle", "packed_circle", "packed_circle"]
   
   let max_time = 500;
   let centers = []
@@ -252,9 +252,57 @@ function create_circular_layer(){
     let style = random(available_styles) 
     let fill_bg = random([true, false])
     let exceed_bounds = random([true, false])
-    if(style == "packed_circle_filled_pen") { fill_bg = false; }
+    if(style == "filled_pen") { fill_bg = false; }
     if(style == "packed_circle") { fill_bg = false; hide_bg = false; }
-    if(style == "packed_circle_filled_bg") { fill_bg = true; exceed_bounds = false; }
+    if(style == "filled_bg") { fill_bg = true; exceed_bounds = false; }
+
+    let options = {center: center, 
+      hide_bg: true,
+      fill_bg: fill_bg,
+      distinct: false,
+      style: style,
+      exceed_bounds: exceed_bounds
+    }
+
+    let too_close = check_proximity(center, centers)
+    if(too_close) { continue; }
+    
+    let c = new Circular(layer, num_bounds, num_groups, radius, attractors, [], max_time + t, options)
+
+    c.initialize();
+    if(c.state === STATE_UPDATE) {
+      layer.objects.push(c);
+      available_styles.splice(available_styles.indexOf(style), 1)
+      console.log(available_styles, style)
+      centers.push(center)
+      if(layer.objects.length > NUM_CIRCULAR_LAYER || available_styles.length < 1) { break; }
+    }
+  }
+  
+  layers.push(layer)
+}
+
+function create_packed_layer(){
+  let depth = 3
+  let layer = new Layer(current_layer, depth)
+
+  let num_bounds = 1;
+  let num_groups = 1;
+  
+  let available_styles = ["ellipse_shadow", "large_ellipse", "circle",  "equal"]
+  
+  let max_time = 500;
+  let centers = []
+
+  for(let i = 0; i < 120; i++){
+    let radius = 150;
+    let x = random(W*0.25, W*0.75)
+    let y = random(H*0.15, H*0.85)
+    let center =  createVector(x, y);
+
+    let style = random(available_styles) 
+    let fill_bg = random([true, false])
+    let exceed_bounds = random([true, false])
     if(style == "circle") { fill_bg = true; exceed_bounds = true }
     if(style == "ellipse_shadow") { fill_bg = false; exceed_bounds = false;}
     if(style == "equal") { fill_bg = false; exceed_bounds = false; }
@@ -279,7 +327,7 @@ function create_circular_layer(){
       available_styles.splice(available_styles.indexOf(style), 1)
       console.log(available_styles, style)
       centers.push(center)
-      if(layer.objects.length > 20 || available_styles.length < 1) { break; }
+      if(layer.objects.length > NUM_PACKED_LAYER || available_styles.length < 1) { break; }
     }
   }
   
@@ -451,7 +499,7 @@ function update_state(){
   }
 }
 
-const MAX_LAYERS = 5
+const MAX_LAYERS = 6
 
 function create_next_layer(){
   switch(current_layer){
@@ -468,9 +516,12 @@ function create_next_layer(){
       create_slime_layer()
       break;
     case 4:
-      create_circular_layer()
+      create_packed_layer()
       break; 
     case 5:
+      create_circular_layer()
+      break
+    case 6:
       create_brain_layer()
       break;
   }
