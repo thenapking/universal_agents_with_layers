@@ -82,12 +82,7 @@ class SpaceFillingAgent extends Agent {
     super(position, group);
     this.minSize = group.minSize;
     this.maxSize = group.maxSize;
-    // this.size = 15;
     this.style = this.group.style;
-    // this.width = this.style == "line" ? this.size / 3 : this.size / 2;
-    // this.height = this.style == "line" ? this.size / 3 : this.size;
-    // this.width = this.size;
-    // this.height = this.size*0.35;
     this.spawned = false;
     this.number_to_spawn = n;
     this.active = true;
@@ -205,10 +200,14 @@ class SpaceFillingAgent extends Agent {
       let d = this.size * (1 + i * 0.02);
       let x = Math.round(this.position.x + d * cos(a));
       let y = Math.round(this.position.y + d * sin(a));
-      let new_agent = new SpaceFillingAgent(createVector(x, y), this.group, this.number_to_spawn);
-      this.group.potential_agents.push(new_agent);
+      let p = createVector(x, y);
+      this.group.potential_agents.push(this.new_agent(p));
     }
     this.spawned = true;
+  }
+
+  new_agent(position){
+    return new SpaceFillingAgent(position, this.group, this.number_to_spawn);
   }
 
   neighbours(grid) {

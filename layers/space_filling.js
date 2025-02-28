@@ -8,9 +8,7 @@ class SpaceFilling extends LayerObject {
     this.exceed_bounds = options.exceed_bounds;
   }
 
-  initialize(){
-    super.initialize();
-  }
+  
 
   new_boundary(){
     return new Boundary("circle", {center: this.center, radius: this.radius, mode: "contain"});
