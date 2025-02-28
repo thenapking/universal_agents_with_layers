@@ -42,9 +42,7 @@ class CircularAgent extends Agent {
   set_size() {
     let nz = noise(this.position.x * this.noiseScale, this.position.y * this.noiseScale);
     this.size = lerp(this.minSize, this.maxSize, nz);
-    let sz_mult = this.group.style.substring(0,17) == "packed_circle_pip" ? 1.5 : 1.01;
-    this.separation_radius = this.size * sz_mult;
-    
+    this.separation_radius = this.size * 1.01;
   }
 
   draw() {
@@ -52,7 +50,7 @@ class CircularAgent extends Agent {
       fill(palette.pen);
       noStroke();
 
-      if(this.group.style == "packed_circle_filled_bg") {
+      if(this.group.style == "filled_bg") {
         fill(palette.bg);
         stroke(palette.pen);
       }
